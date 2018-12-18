@@ -1,0 +1,31 @@
+{
+    "interval": 5,
+    "json": {
+        "query": {
+            "bool": {
+                "must": {
+                    "term": {
+                        "tags": "success"
+                    }
+                },
+                "filter": {
+                    "bool": {
+                        "must": [{
+                            "term": {
+                                "response": 200
+                            }
+                        }, {
+                            "term": {
+                                "index": "kibana_sample_data_logs"
+                            }
+                        }]
+                    }
+
+                }
+            }
+        },
+        "stored_fields": "_score",
+        "from": 3,
+        "size": 0
+    }
+}
