@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/turnon/elastic_alarm/notifiers"
+	"bitbucket.org/xcrossing/elastic_alarm/notifiers"
 )
 
 type config struct {
