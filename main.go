@@ -3,11 +3,12 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
+
+	"github.com/turnon/elastic_alarm/notifiers"
 )
 
 type config struct {
@@ -62,9 +63,18 @@ func fetch(json io.Reader) {
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
+	// fmt.Println("response Status:", resp.Status)
+	// fmt.Println("response Headers:", resp.Header)
 	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
+	// fmt.Println("response Body:", string(body))
 
+	n := notifiers.Email{}
+	n.SetTitle(resp.Status)
+	n.SetBody(string(body))
+	notify(&n)
+
+}
+
+func notify(n notifiers.Notifier) {
+	n.Notify()
 }
