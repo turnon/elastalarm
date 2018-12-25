@@ -6,7 +6,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -22,6 +21,17 @@ type config struct {
 	Title    string          `json:"title"`
 	Interval string          `json:"interval"`
 	JSON     json.RawMessage `json:"json"`
+}
+
+func (cfg *config) load(path string) {
+	js, err := ioutil.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+
+	if err = json.Unmarshal(js, cfg); err != nil {
+		panic(err)
+	}
 }
 
 func (cfg *config) ticker() <-chan time.Time {
@@ -67,32 +77,4 @@ func (cfg *config) fetch(host string) {
 	n.SetBody(string(body))
 	n.Notify()
 
-}
-
-func configs(path string) []config {
-	var configArray []config
-	files, err := filepath.Glob(path + "/*")
-
-	if err != nil {
-		panic(err)
-	}
-
-	if len(files) == 0 {
-		panic("config not found")
-	}
-
-	for _, file := range files {
-		js, err := ioutil.ReadFile(file)
-		if err != nil {
-			panic(err)
-		}
-
-		cfg := config{}
-		if err = json.Unmarshal(js, &cfg); err != nil {
-			panic(err)
-		}
-		configArray = append(configArray, cfg)
-	}
-
-	return configArray
 }

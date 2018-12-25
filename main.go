@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"path/filepath"
 )
 
 func main() {
@@ -15,5 +16,27 @@ func main() {
 		})(cfg)
 
 	}
+
 	<-make(chan bool)
+}
+
+func configs(path string) []config {
+	var configArray []config
+	files, err := filepath.Glob(path + "/*")
+
+	if err != nil {
+		panic(err)
+	}
+
+	if len(files) == 0 {
+		panic("config not found")
+	}
+
+	for _, file := range files {
+		cfg := config{}
+		cfg.load(file)
+		configArray = append(configArray, cfg)
+	}
+
+	return configArray
 }
