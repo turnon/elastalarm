@@ -21,9 +21,10 @@ type config struct {
 func main() {
 
 	host := flag.String("host", "http://0.0.0.0:9200", "es host")
+	cfgPath := flag.String("configs", "config", "config files location")
 	flag.Parse()
 
-	for _, cfg := range configs() {
+	for _, cfg := range configs(*cfgPath) {
 		// go func(js []byte) {
 		// jsonReader := bytes.NewReader(json)
 		// fetch(jsonReader)
@@ -34,12 +35,16 @@ func main() {
 	// <-make(chan bool)
 }
 
-func configs() []config {
+func configs(path string) []config {
 	var configArray []config
+	files, err := filepath.Glob(path + "/*")
 
-	files, err := filepath.Glob("configs/*")
 	if err != nil {
 		panic(err)
+	}
+
+	if len(files) == 0 {
+		panic("config not found")
 	}
 
 	for _, file := range files {
