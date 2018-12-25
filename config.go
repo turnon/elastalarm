@@ -19,6 +19,7 @@ var (
 )
 
 type config struct {
+	Title    string          `json:"title"`
 	Interval string          `json:"interval"`
 	JSON     json.RawMessage `json:"json"`
 }
@@ -59,13 +60,10 @@ func (cfg *config) fetch(host string) {
 	}
 	defer resp.Body.Close()
 
-	// fmt.Println("response Status:", resp.Status)
-	// fmt.Println("response Headers:", resp.Header)
 	body, _ := ioutil.ReadAll(resp.Body)
-	// fmt.Println("response Body:", string(body))
 
 	n := notifiers.Stdout{}
-	n.SetTitle(resp.Status)
+	n.SetTitle(cfg.Title)
 	n.SetBody(string(body))
 	n.Notify()
 
@@ -93,7 +91,6 @@ func configs(path string) []config {
 		if err = json.Unmarshal(js, &cfg); err != nil {
 			panic(err)
 		}
-		cfg.ticker()
 		configArray = append(configArray, cfg)
 	}
 

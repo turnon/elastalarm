@@ -1,5 +1,6 @@
 {
-    "interval": 2,
+    "title": "aggs",
+    "interval": "5s",
     "json": {
         "size": 0,
         "query": {

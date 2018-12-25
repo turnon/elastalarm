@@ -1,5 +1,6 @@
 {
-    "interval": 5,
+    "title": "a",
+    "interval": "2s",
     "json": {
         "query": {
             "bool": {

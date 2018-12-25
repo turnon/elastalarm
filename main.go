@@ -10,7 +10,10 @@ func main() {
 	flag.Parse()
 
 	for _, cfg := range configs(*cfgPath) {
-		cfg.monitor(*host)
+		(func(cfg config) {
+			cfg.monitor(*host)
+		})(cfg)
+
 	}
 	<-make(chan bool)
 }
