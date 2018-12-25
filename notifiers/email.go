@@ -1,8 +1,6 @@
 package notifiers
 
 import (
-	"fmt"
-
 	gomail "gopkg.in/gomail.v2"
 )
 
@@ -24,7 +22,7 @@ func (m *Email) SetBody(s string) {
 
 // Notify send email
 func (m *Email) Notify() {
-	fmt.Println(m.title, m.body)
+	// fmt.Println(m.title, m.body)
 
 	msg := gomail.NewMessage()
 	msg.SetHeader("From", "1020715764@qq.com")

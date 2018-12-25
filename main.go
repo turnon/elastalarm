@@ -79,7 +79,7 @@ func fetch(json io.Reader, host string) {
 	body, _ := ioutil.ReadAll(resp.Body)
 	// fmt.Println("response Body:", string(body))
 
-	n := notifiers.Email{}
+	n := notifiers.Stdout{}
 	n.SetTitle(resp.Status)
 	n.SetBody(string(body))
 	notify(&n)
