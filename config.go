@@ -5,12 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"io/ioutil"
-	"regexp"
 	"time"
-)
-
-var (
-	intervalRe = regexp.MustCompile("(\\d+)(.)")
 )
 
 type config struct {
