@@ -10,19 +10,13 @@ func main() {
 	cfgPath := flag.String("configs", "config", "config files location")
 	flag.Parse()
 
-	for _, cfg := range configs(*cfgPath) {
-		(func(cfg config) {
-			cfg.monitor(*host)
-		})(cfg)
-
-	}
+	initMonitors(*host, configFiles(*cfgPath))
 
 	<-make(chan bool)
 }
 
-func configs(path string) []config {
-	var configArray []config
-	files, err := filepath.Glob(path + "/*")
+func configFiles(dir string) []string {
+	files, err := filepath.Glob(dir + "/*")
 
 	if err != nil {
 		panic(err)
@@ -32,11 +26,5 @@ func configs(path string) []config {
 		panic("config not found")
 	}
 
-	for _, file := range files {
-		cfg := config{}
-		cfg.load(file)
-		configArray = append(configArray, cfg)
-	}
-
-	return configArray
+	return files
 }
