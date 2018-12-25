@@ -3,10 +3,12 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
+	"strings"
 
 	"bitbucket.org/xcrossing/elastic_alarm/notifiers"
 )
@@ -17,12 +19,16 @@ type config struct {
 }
 
 func main() {
+
+	host := flag.String("host", "http://0.0.0.0:9200", "es host")
+	flag.Parse()
+
 	for _, cfg := range configs() {
 		// go func(js []byte) {
 		// jsonReader := bytes.NewReader(json)
 		// fetch(jsonReader)
 		jsonReader := bytes.NewReader(cfg.JSON)
-		fetch(jsonReader)
+		fetch(jsonReader, *host)
 		// }(js)
 	}
 	// <-make(chan bool)
@@ -52,8 +58,13 @@ func configs() []config {
 	return configArray
 }
 
-func fetch(json io.Reader) {
-	req, _ := http.NewRequest("GET", "http://192.168.0.107:9200/_search", json)
+func fetch(json io.Reader, host string) {
+	var sb strings.Builder
+	sb.WriteString(host)
+	sb.WriteString("/_search")
+	url := sb.String()
+
+	req, _ := http.NewRequest("GET", url, json)
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
