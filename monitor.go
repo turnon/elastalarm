@@ -17,6 +17,9 @@ type monitor struct {
 func initMonitors(host string, files []string) {
 	for _, file := range files {
 		cfg := loadConfig(file)
+		if cfg.Skip {
+			continue
+		}
 		m := newMonitor(host, cfg)
 		m.run()
 	}

@@ -9,6 +9,7 @@ import (
 )
 
 type config struct {
+	Skip     bool            `json:"skip"`
 	Title    string          `json:"title"`
 	Interval string          `json:"interval"`
 	JSON     json.RawMessage `json:"json"`

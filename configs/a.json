@@ -1,6 +1,7 @@
 {
+    "skip": true,
     "title": "a",
-    "interval": "2s",
+    "interval": "5s",
     "json": {
         "query": {
             "bool": {

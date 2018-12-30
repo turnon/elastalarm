@@ -1,22 +1,22 @@
 {
     "title": "aggs",
-    "interval": "5s",
+    "interval": "2s",
     "json": {
         "size": 0,
         "query": {
             "term": {
-                "index": "kibana_sample_data_logs"
+                "_index": "logstash-nginx-access-2018.12.08"
             }
         },
         "aggs": {
             "max_utc_time": {
                 "max": {
-                    "field": "utc_time"
+                    "field": "@timestamp"
                 }
             },
-            "minx_utc_time": {
+            "min_utc_time": {
                 "min": {
-                    "field": "utc_time"
+                    "field": "@timestamp"
                 }
             }
         }
