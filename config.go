@@ -10,12 +10,12 @@ import (
 )
 
 type config struct {
-	Skip       bool                 `json:"skip"`
-	Title      string               `json:"title"`
-	Interval   string               `json:"interval"`
-	Index      string               `json:"index"`
-	JSON       json.RawMessage      `json:"json"`
-	Percentage paradigms.Percentage `json:"percentage"`
+	Skip      bool            `json:"skip"`
+	Title     string          `json:"title"`
+	Interval  string          `json:"interval"`
+	Index     string          `json:"index"`
+	Paradigm  string          `json:"paradigm"`
+	Condition json.RawMessage `json:"condition"`
 }
 
 func loadConfig(path string) *config {
@@ -41,6 +41,15 @@ func (cfg *config) ticker() <-chan time.Time {
 }
 
 func (cfg *config) requestBody() io.Reader {
-	return cfg.Percentage.ReqBody()
+	var paradigm paradigms.Paradigm
+	if cfg.Paradigm == "percentage" {
+		paradigm = &paradigms.Percentage{}
+	}
+
+	if err := json.Unmarshal(cfg.Condition, paradigm); err != nil {
+		panic(err)
+	}
+
+	return paradigm.ReqBody()
 	// return bytes.NewReader(cfg.JSON)
 }

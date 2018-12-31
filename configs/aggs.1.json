@@ -2,7 +2,8 @@
     "title": "percent",
     "interval": "2s",
     "index": "logstash-nginx-access-*",
-    "percentage": {
+    "paradigm": "percentage",
+    "condition": {
         "part": {
             "prefix": {
                 "retcode.keyword": "5"

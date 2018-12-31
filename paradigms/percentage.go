@@ -17,7 +17,7 @@ type Percentage struct {
 }
 
 const percentageTemplate = `
-  {
+ {
 	"query": {
 	  "bool": {
 		"must": [
