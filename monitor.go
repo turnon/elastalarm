@@ -26,11 +26,7 @@ func initMonitors(host string, files []string) {
 }
 
 func newMonitor(host string, cfg *config) *monitor {
-	var sb strings.Builder
-	sb.WriteString(host)
-	sb.WriteString("/_search")
-	url := sb.String()
-
+	url := strings.Join([]string{host, cfg.Index, "_search"}, "/")
 	return &monitor{config: cfg, url: url, httpClient: &http.Client{}}
 }
 

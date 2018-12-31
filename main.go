@@ -28,3 +28,9 @@ func configFiles(dir string) []string {
 
 	return files
 }
+
+// func main() {
+// 	cfg := loadConfig(".\\configs\\aggs.1.json")
+// 	fmt.Println(*cfg.Percentage.ReqBody())
+// 	// fmt.Println(paradigms.Percentage{} == s)
+// }

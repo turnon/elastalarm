@@ -1,0 +1,20 @@
+{
+    "title": "percent",
+    "interval": "2s",
+    "index": "logstash-nginx-access-*",
+    "percentage": {
+        "part": {
+            "prefix": {
+                "retcode.keyword": "5"
+            }
+        },
+        "whole": {
+            "range": {
+                "@timestamp": {
+                    "gt": "now-30d"
+                }
+            }
+        },
+        "gt": 0.02
+    }
+}

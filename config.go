@@ -1,18 +1,21 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"io"
 	"io/ioutil"
 	"time"
+
+	"bitbucket.org/xcrossing/elastic_alarm/paradigms"
 )
 
 type config struct {
-	Skip     bool            `json:"skip"`
-	Title    string          `json:"title"`
-	Interval string          `json:"interval"`
-	JSON     json.RawMessage `json:"json"`
+	Skip       bool                 `json:"skip"`
+	Title      string               `json:"title"`
+	Interval   string               `json:"interval"`
+	Index      string               `json:"index"`
+	JSON       json.RawMessage      `json:"json"`
+	Percentage paradigms.Percentage `json:"percentage"`
 }
 
 func loadConfig(path string) *config {
@@ -38,5 +41,6 @@ func (cfg *config) ticker() <-chan time.Time {
 }
 
 func (cfg *config) requestBody() io.Reader {
-	return bytes.NewReader(cfg.JSON)
+	return cfg.Percentage.ReqBody()
+	// return bytes.NewReader(cfg.JSON)
 }
