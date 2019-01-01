@@ -24,7 +24,7 @@ type percentAggs struct {
 const percentageTemplate = `
 {
 	"query": {
-	  "bool": {
+		"bool": {
 			"must": [
 				{
 					"range": {
@@ -37,18 +37,18 @@ const percentageTemplate = `
 					{{ .Paradigm.WholeString }}
 				}
 			]
-	  }
+		}
 	},
 	"size": 0,
 	"aggs": {
-	  "part": {
+		"part": {
 			"filter": {
 				{{ .Paradigm.PartString }}
 			},
 			"aggs": {
 				{{ .Paradigm.DetailString }}
 			}
-	  }
+		}
 	}
 }
 `
