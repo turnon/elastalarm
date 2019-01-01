@@ -1,0 +1,19 @@
+{
+    "title": "percent",
+    "interval": "1440h",
+    "index": "logstash-nginx-access-*",
+    "paradigm": "percentage",
+    "condition": {
+        "part": {
+            "prefix": {
+                "retcode.keyword": "5"
+            }
+        },
+        "whole": {
+            "match_all": {}
+        },
+        "match": {
+            "gt": 0.02
+        }
+    }
+}

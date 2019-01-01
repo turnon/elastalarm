@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
 
 	"bitbucket.org/xcrossing/elastic_alarm/notifiers"
+	"bitbucket.org/xcrossing/elastic_alarm/response"
 )
 
 type monitor struct {
@@ -26,16 +28,13 @@ func initMonitors(host string, files []string) {
 }
 
 func newMonitor(host string, cfg *config) *monitor {
-	var sb strings.Builder
-	sb.WriteString(host)
-	sb.WriteString("/_search")
-	url := sb.String()
-
+	url := strings.Join([]string{host, cfg.Index, "_search"}, "/")
 	return &monitor{config: cfg, url: url, httpClient: &http.Client{}}
 }
 
 func (m *monitor) run() {
 	go func() {
+		m.check()
 		for range m.ticker() {
 			m.check()
 		}
@@ -43,7 +42,7 @@ func (m *monitor) run() {
 }
 
 func (m *monitor) check() {
-	req, _ := http.NewRequest("GET", m.url, m.requestBody())
+	req, _ := http.NewRequest("GET", m.url, m.ReqBody())
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := m.httpClient.Do(req)
@@ -53,6 +52,10 @@ func (m *monitor) check() {
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
+	respObj := &response.Response{}
+	respObj.Unmarshal(body)
+	b := m.Found(respObj)
+	fmt.Println(b)
 
 	n := notifiers.Stdout{}
 	n.SetTitle(m.Title)
