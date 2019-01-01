@@ -39,7 +39,7 @@ func (m *monitor) run() {
 }
 
 func (m *monitor) check() {
-	req, _ := http.NewRequest("GET", m.url, m.requestBody())
+	req, _ := http.NewRequest("GET", m.url, m.ReqBody())
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := m.httpClient.Do(req)
