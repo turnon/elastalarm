@@ -2,8 +2,8 @@ package paradigms
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
+	"math/big"
 	"regexp"
 	"strings"
 	"text/template"
@@ -14,8 +14,7 @@ import (
 type Percentage struct {
 	Part   json.RawMessage `json:"part"`
 	Whole  json.RawMessage `json:"whole"`
-	Gt     float64         `json:"gt"`
-	Lt     float64         `json:"lt"`
+	Match  `json:"match"`
 	Detail json.RawMessage `json:"detail"`
 }
 
@@ -57,7 +56,10 @@ const percentageTemplate = `
 }
 `
 
-var re = regexp.MustCompile("(?s)\\{(.*)\\}")
+var (
+	re      = regexp.MustCompile("(?s)\\{(.*)\\}")
+	hundred = big.NewFloat(100)
+)
 
 func (p *Percentage) ReqBody() io.Reader {
 	t := template.New("a")
@@ -67,12 +69,21 @@ func (p *Percentage) ReqBody() io.Reader {
 	return strings.NewReader(s.String())
 }
 
-func (p *Percentage) HandleResp(resp *response.Response) {
+func (p *Percentage) Found(resp *response.Response) bool {
+	total := resp.Total()
+	if total == 0 {
+		return false
+	}
+	whole := big.NewFloat(float64(total))
+
 	aggs := &percentAggs{}
 	json.Unmarshal(resp.Aggregations, aggs)
-	part := aggs.Part.DocCount
-	whole := resp.Total()
-	fmt.Println(part, whole)
+	part := big.NewFloat(float64(aggs.Part.DocCount))
+
+	var quo, percent big.Float
+	quo.Quo(part, whole)
+	percent.Mul(&quo, hundred)
+	return p.Match.ing(&percent)
 }
 
 func stringify(json *json.RawMessage) string {

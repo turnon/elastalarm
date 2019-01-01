@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -52,7 +53,8 @@ func (m *monitor) check() {
 	body, _ := ioutil.ReadAll(resp.Body)
 	respObj := &response.Response{}
 	respObj.Unmarshal(body)
-	m.HandleResp(respObj)
+	b := m.Found(respObj)
+	fmt.Println(b)
 
 	n := notifiers.Stdout{}
 	n.SetTitle(m.Title)
