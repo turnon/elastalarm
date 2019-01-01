@@ -2,10 +2,13 @@ package paradigms
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"regexp"
 	"strings"
 	"text/template"
+
+	"bitbucket.org/xcrossing/elastic_alarm/response"
 )
 
 type Percentage struct {
@@ -14,6 +17,12 @@ type Percentage struct {
 	Gt     float64         `json:"gt"`
 	Lt     float64         `json:"lt"`
 	Detail json.RawMessage `json:"detail"`
+}
+
+type percentAggs struct {
+	Part struct {
+		DocCount int `json:"doc_count"`
+	} `json:"part"`
 }
 
 const percentageTemplate = `
@@ -56,6 +65,14 @@ func (p *Percentage) ReqBody() io.Reader {
 	s := &strings.Builder{}
 	t.Execute(s, p)
 	return strings.NewReader(s.String())
+}
+
+func (p *Percentage) HandleResp(resp *response.Response) {
+	aggs := &percentAggs{}
+	json.Unmarshal(resp.Aggregations, aggs)
+	part := aggs.Part.DocCount
+	whole := resp.Total()
+	fmt.Println(part, whole)
 }
 
 func stringify(json *json.RawMessage) string {

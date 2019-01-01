@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"bitbucket.org/xcrossing/elastic_alarm/notifiers"
+	"bitbucket.org/xcrossing/elastic_alarm/response"
 )
 
 type monitor struct {
@@ -49,6 +50,9 @@ func (m *monitor) check() {
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
+	respObj := &response.Response{}
+	respObj.Unmarshal(body)
+	m.HandleResp(respObj)
 
 	n := notifiers.Stdout{}
 	n.SetTitle(m.Title)
