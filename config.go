@@ -19,6 +19,7 @@ type config struct {
 	ParadigmName string          `json:"paradigm"`
 	Condition    json.RawMessage `json:"condition"`
 	paradigms.Paradigm
+	_reqBody *string
 }
 
 func loadConfig(path string) *config {
@@ -47,12 +48,21 @@ func loadConfig(path string) *config {
 	return cfg
 }
 
+func (cfg *config) reqBody() *string {
+	if cfg._reqBody == nil {
+		t := template.New("a")
+		t.Parse(cfg.Template())
+		sb := &strings.Builder{}
+		t.Execute(sb, cfg)
+		str := sb.String()
+		cfg._reqBody = &str
+	}
+
+	return cfg._reqBody
+}
+
 func (cfg *config) ReqBody() io.Reader {
-	t := template.New("a")
-	t.Parse(cfg.Template())
-	s := &strings.Builder{}
-	t.Execute(s, cfg)
-	return strings.NewReader(s.String())
+	return strings.NewReader(*cfg.reqBody())
 }
 
 func (cfg *config) ticker() <-chan time.Time {
