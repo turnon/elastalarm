@@ -17,42 +17,38 @@ type Percentage struct {
 }
 
 const percentageTemplate = `
- {
+{
 	"query": {
 	  "bool": {
-		"must": [
-		  {
-			"range": {
-			  "@timestamp": {
-				"gt": "now-30d"
-			  }
-			}
-		  },
-		  {
-			{{ .WholeString }}
-		  }
-		]
+			"must": [
+				{
+					"range": {
+						"@timestamp": {
+							"gt": "now-30d"
+						}
+					}
+				},
+				{
+					{{ .WholeString }}
+				}
+			]
 	  }
 	},
 	"size": 0,
 	"aggs": {
 	  "part": {
-		"filter": {
-		  {{ .PartString }}
-		},
-		"aggs": {
-		  {{ .DetailString }}
-		}
+			"filter": {
+				{{ .PartString }}
+			},
+			"aggs": {
+				{{ .DetailString }}
+			}
 	  }
 	}
-  }
+}
 `
 
 var re = regexp.MustCompile("(?s)\\{(.*)\\}")
-
-func (p *Percentage) Present() bool {
-	return len(p.Part) > 0 && len(p.Whole) > 0 && (p.Gt > 0 || p.Lt > 0)
-}
 
 func (p *Percentage) ReqBody() io.Reader {
 	t := template.New("a")
