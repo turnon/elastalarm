@@ -2,11 +2,8 @@ package paradigms
 
 import (
 	"encoding/json"
-	"io"
 	"math/big"
 	"regexp"
-	"strings"
-	"text/template"
 
 	"bitbucket.org/xcrossing/elastic_alarm/response"
 )
@@ -32,12 +29,12 @@ const percentageTemplate = `
 				{
 					"range": {
 						"@timestamp": {
-							"gt": "now-30d"
+							"gt": "now-{{ .Interval }}"
 						}
 					}
 				},
 				{
-					{{ .WholeString }}
+					{{ .Paradigm.WholeString }}
 				}
 			]
 	  }
@@ -46,10 +43,10 @@ const percentageTemplate = `
 	"aggs": {
 	  "part": {
 			"filter": {
-				{{ .PartString }}
+				{{ .Paradigm.PartString }}
 			},
 			"aggs": {
-				{{ .DetailString }}
+				{{ .Paradigm.DetailString }}
 			}
 	  }
 	}
@@ -61,12 +58,8 @@ var (
 	hundred = big.NewFloat(100)
 )
 
-func (p *Percentage) ReqBody() io.Reader {
-	t := template.New("a")
-	t.Parse(percentageTemplate)
-	s := &strings.Builder{}
-	t.Execute(s, p)
-	return strings.NewReader(s.String())
+func (p *Percentage) Template() string {
+	return percentageTemplate
 }
 
 func (p *Percentage) Found(resp *response.Response) bool {

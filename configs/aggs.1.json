@@ -1,6 +1,6 @@
 {
     "title": "percent",
-    "interval": "2s",
+    "interval": "1440h",
     "index": "logstash-nginx-access-*",
     "paradigm": "percentage",
     "condition": {
@@ -10,11 +10,7 @@
             }
         },
         "whole": {
-            "range": {
-                "@timestamp": {
-                    "gt": "now-30d"
-                }
-            }
+            "match_all": {}
         },
         "match": {
             "gt": 0.02

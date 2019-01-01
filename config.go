@@ -2,7 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"io"
 	"io/ioutil"
+	"strings"
+	"text/template"
 	"time"
 
 	"bitbucket.org/xcrossing/elastic_alarm/paradigms"
@@ -42,6 +45,14 @@ func loadConfig(path string) *config {
 	}
 
 	return cfg
+}
+
+func (cfg *config) ReqBody() io.Reader {
+	t := template.New("a")
+	t.Parse(cfg.Template())
+	s := &strings.Builder{}
+	t.Execute(s, cfg)
+	return strings.NewReader(s.String())
 }
 
 func (cfg *config) ticker() <-chan time.Time {

@@ -34,6 +34,7 @@ func newMonitor(host string, cfg *config) *monitor {
 
 func (m *monitor) run() {
 	go func() {
+		m.check()
 		for range m.ticker() {
 			m.check()
 		}

@@ -1,14 +1,13 @@
 package paradigms
 
 import (
-	"io"
 	"math/big"
 
 	"bitbucket.org/xcrossing/elastic_alarm/response"
 )
 
 type Paradigm interface {
-	ReqBody() io.Reader
+	Template() string
 	Found(resp *response.Response) bool
 }
 
