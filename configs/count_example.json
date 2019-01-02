@@ -1,0 +1,26 @@
+{
+    "title": "too much qcloud error",
+    "interval": "1440h",
+    "index": "logstash-production-*",
+    "paradigm": "count",
+    "condition": {
+        "scope": {
+            "bool": {
+                "must": [{
+                        "term": {
+                            "progname": "qcloud"
+                        }
+                    },
+                    {
+                        "term": {
+                            "severity.keyword": "ERROR"
+                        }
+                    }
+                ]
+            }
+        },
+        "match": {
+            "gt": 100
+        }
+    }
+}
