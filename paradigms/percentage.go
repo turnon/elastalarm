@@ -3,7 +3,6 @@ package paradigms
 import (
 	"encoding/json"
 	"math/big"
-	"regexp"
 
 	"bitbucket.org/xcrossing/elastic_alarm/response"
 )
@@ -33,18 +32,14 @@ const percentageTemplate = `
 						}
 					}
 				},
-				{
-					{{ .Paradigm.WholeString }}
-				}
+				{{ .Paradigm.WholeString }}
 			]
 		}
 	},
 	"size": 0,
 	"aggs": {
 		"part": {
-			"filter": {
-				{{ .Paradigm.PartString }}
-			},
+			"filter": {{ .Paradigm.PartString }},
 			"aggs": {
 				{{ .Paradigm.DetailString }}
 			}
@@ -53,10 +48,7 @@ const percentageTemplate = `
 }
 `
 
-var (
-	re      = regexp.MustCompile("(?s)\\{(.*)\\}")
-	hundred = big.NewFloat(100)
-)
+var hundred = big.NewFloat(100)
 
 func (p *Percentage) Template() string {
 	return percentageTemplate
@@ -79,18 +71,14 @@ func (p *Percentage) Found(resp *response.Response) bool {
 	return p.Match.ing(&percent)
 }
 
-func stringify(json *json.RawMessage) string {
-	return re.ReplaceAllString(string(*json), `$1`)
-}
-
 func (p *Percentage) PartString() string {
-	return stringify(&p.Part)
+	return string(p.Part)
 }
 
 func (p *Percentage) WholeString() string {
-	return stringify(&p.Whole)
+	return string(p.Whole)
 }
 
 func (p *Percentage) DetailString() string {
-	return stringify(&p.Detail)
+	return string(p.Detail)
 }
