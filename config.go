@@ -39,6 +39,8 @@ func loadConfig(path string) *config {
 
 	if cfg.ParadigmName == "percentage" {
 		cfg.Paradigm = &paradigms.Percentage{}
+	} else if cfg.ParadigmName == "count" {
+		cfg.Paradigm = &paradigms.Count{}
 	}
 
 	if err := json.Unmarshal(cfg.Condition, cfg.Paradigm); err != nil {
