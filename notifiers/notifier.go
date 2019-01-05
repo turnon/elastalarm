@@ -9,13 +9,6 @@ import (
 	gomail "gopkg.in/gomail.v2"
 )
 
-// Notifier interface
-type Notifier interface {
-	SetTitle(s string)
-	SetBody(s string)
-	Notify()
-}
-
 type Msg struct {
 	Title, Body *string
 }
