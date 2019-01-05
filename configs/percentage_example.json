@@ -16,7 +16,5 @@
             "gt": 0.02
         }
     },
-    "alarms": {
-        "stdout": []
-    }
+    "alarms": ["stdout", "email"]
 }

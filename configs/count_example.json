@@ -23,7 +23,5 @@
             "gt": 100
         }
     },
-    "alarms": {
-        "stdout": []
-    }
+    "alarms": ["stdout", "email"]
 }

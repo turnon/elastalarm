@@ -61,7 +61,7 @@ func (mon *monitor) check() {
 
 	msg := notifiers.Msg{Title: &mon.Title, Body: detail}
 
-	for notifier, targets := range mon.Alarms {
-		notifiers.Names[notifier](&msg, &targets)
+	for _, notifier := range mon.Alarms {
+		notifiers.Names[notifier](&msg)
 	}
 }
