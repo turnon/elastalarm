@@ -8,7 +8,7 @@ import (
 
 type Paradigm interface {
 	Template() string
-	Found(resp *response.Response) bool
+	Found(resp *response.Response) (bool, *string)
 }
 
 type Match struct {

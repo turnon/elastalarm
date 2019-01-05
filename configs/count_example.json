@@ -22,5 +22,8 @@
         "match": {
             "gt": 100
         }
+    },
+    "alarms": {
+        "stdout": []
     }
 }

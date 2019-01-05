@@ -12,12 +12,13 @@ import (
 )
 
 type config struct {
-	Skip         bool            `json:"skip"`
-	Title        string          `json:"title"`
-	Interval     string          `json:"interval"`
-	Index        string          `json:"index"`
-	ParadigmName string          `json:"paradigm"`
-	Condition    json.RawMessage `json:"condition"`
+	Skip         bool                  `json:"skip"`
+	Title        string                `json:"title"`
+	Interval     string                `json:"interval"`
+	Index        string                `json:"index"`
+	ParadigmName string                `json:"paradigm"`
+	Condition    json.RawMessage       `json:"condition"`
+	Alarms       map[string]([]string) `json:"alarms"`
 	paradigms.Paradigm
 	_reqBody *string
 }

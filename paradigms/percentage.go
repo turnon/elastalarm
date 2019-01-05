@@ -54,10 +54,10 @@ func (p *Percentage) Template() string {
 	return percentageTemplate
 }
 
-func (p *Percentage) Found(resp *response.Response) bool {
+func (p *Percentage) Found(resp *response.Response) (bool, *string) {
 	total := resp.Total()
 	if total == 0 {
-		return false
+		return false, nil
 	}
 	whole := big.NewFloat(float64(total))
 
@@ -68,7 +68,14 @@ func (p *Percentage) Found(resp *response.Response) bool {
 	var quo, percent big.Float
 	quo.Quo(part, whole)
 	percent.Mul(&quo, hundred)
-	return p.Match.ing(&percent)
+	match := p.Match.ing(&percent)
+
+	if !match {
+		return match, nil
+	}
+
+	detail := "wtf"
+	return match, &detail
 }
 
 func (p *Percentage) PartString() string {

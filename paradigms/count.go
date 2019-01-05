@@ -36,9 +36,15 @@ func (c *Count) Template() string {
 	return countTemplate
 }
 
-func (c *Count) Found(resp *response.Response) bool {
+func (c *Count) Found(resp *response.Response) (bool, *string) {
 	total := big.NewFloat(float64(resp.Total()))
-	return c.Match.ing(total)
+	match := c.Match.ing(total)
+	if !match {
+		return match, nil
+	}
+
+	detail := "shit"
+	return match, &detail
 }
 
 func (c *Count) ScopeString() string {

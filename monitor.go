@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -54,12 +53,15 @@ func (m *monitor) check() {
 	body, _ := ioutil.ReadAll(resp.Body)
 	respObj := &response.Response{}
 	respObj.Unmarshal(body)
-	b := m.Found(respObj)
-	fmt.Println(b)
 
-	n := notifiers.Stdout{}
-	n.SetTitle(m.Title)
-	n.SetBody(string(body))
-	n.Notify()
+	found, detail := m.Found(respObj)
+	if !found {
+		return
+	}
 
+	msg := notifiers.Msg{&m.Title, detail}
+
+	for notifier, targets := range m.Alarms {
+		notifiers.Names[notifier](&msg, &targets)
+	}
 }
