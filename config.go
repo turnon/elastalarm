@@ -18,6 +18,7 @@ type config struct {
 	Index        string          `json:"index"`
 	ParadigmName string          `json:"paradigm"`
 	Condition    json.RawMessage `json:"condition"`
+	Detail       json.RawMessage `json:"detail"`
 	Alarms       []string        `json:"alarms"`
 	paradigms.Paradigm
 	_reqBody *string
@@ -66,6 +67,13 @@ func (cfg *config) reqBody() *string {
 
 func (cfg *config) ReqBody() io.Reader {
 	return strings.NewReader(*cfg.reqBody())
+}
+
+func (cfg *config) DetailString() string {
+	if str := string(cfg.Detail); str != "" {
+		return str
+	}
+	return "{}"
 }
 
 func (cfg *config) ticker() <-chan time.Time {

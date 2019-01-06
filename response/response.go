@@ -28,3 +28,7 @@ func (resp *Response) Unmarshal(js []byte) {
 func (resp *Response) Total() int {
 	return resp.Hits.Total
 }
+
+func (resp *Response) Aggs() string {
+	return string(resp.Aggregations)
+}
