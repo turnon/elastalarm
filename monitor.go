@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/turnon/elastalarm/notifiers"
@@ -51,6 +53,11 @@ func (mon *monitor) check() {
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
+	if resp.StatusCode != 200 {
+		fmt.Fprintf(os.Stderr, "%d %s\n%s\n", resp.StatusCode, mon.Title, string(body))
+		return
+	}
+
 	respObj := &response.Response{}
 	respObj.Unmarshal(body)
 
