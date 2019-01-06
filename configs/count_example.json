@@ -23,5 +23,5 @@
             "gt": 100
         }
     },
-    "alarms": ["stdout", "email"]
+    "alarms": ["stdout", "ding"]
 }

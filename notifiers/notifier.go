@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/hugozhu/godingtalk"
 	gomail "gopkg.in/gomail.v2"
 )
 
@@ -13,11 +14,16 @@ type Msg struct {
 	Title, Body *string
 }
 
+func (msg *Msg) join(seperate string) string {
+	return *msg.Title + seperate + *msg.Body
+}
+
 var Names = make(map[string](func(*Msg)))
 
 func init() {
 	Names["stdout"] = stdout
 	Names["email"] = emailFunc()
+	Names["ding"] = dingFunc()
 }
 
 func stdout(m *Msg) {
@@ -52,5 +58,27 @@ func emailFunc() func(*Msg) {
 		if err := d.DialAndSend(msg); err != nil {
 			panic(err)
 		}
+	}
+}
+
+func dingFunc() func(*Msg) {
+	corpid := os.Getenv("ESALARM_DING_CORPID")
+	secret := os.Getenv("ESALARM_DING_SECRET")
+	chatID := os.Getenv("ESALARM_DING_CHATID")
+
+	c := godingtalk.NewDingTalkClient(corpid, secret)
+	c.Cache = godingtalk.NewInMemoryCache()
+	msgs := make(chan *Msg)
+
+	go func() {
+		for {
+			msg := <-msgs
+			c.RefreshAccessToken()
+			c.SendTextMessage("", chatID, msg.join("\n\n"))
+		}
+	}()
+
+	return func(m *Msg) {
+		msgs <- m
 	}
 }
