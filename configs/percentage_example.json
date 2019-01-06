@@ -15,5 +15,6 @@
         "match": {
             "gt": 0.02
         }
-    }
+    },
+    "alarms": ["stdout", "email"]
 }

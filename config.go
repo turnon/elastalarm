@@ -18,6 +18,7 @@ type config struct {
 	Index        string          `json:"index"`
 	ParadigmName string          `json:"paradigm"`
 	Condition    json.RawMessage `json:"condition"`
+	Alarms       []string        `json:"alarms"`
 	paradigms.Paradigm
 	_reqBody *string
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -32,20 +31,20 @@ func newMonitor(host string, cfg *config) *monitor {
 	return &monitor{config: cfg, url: url, httpClient: &http.Client{}}
 }
 
-func (m *monitor) run() {
+func (mon *monitor) run() {
 	go func() {
-		m.check()
-		for range m.ticker() {
-			m.check()
+		mon.check()
+		for range mon.ticker() {
+			mon.check()
 		}
 	}()
 }
 
-func (m *monitor) check() {
-	req, _ := http.NewRequest("GET", m.url, m.ReqBody())
+func (mon *monitor) check() {
+	req, _ := http.NewRequest("GET", mon.url, mon.ReqBody())
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := m.httpClient.Do(req)
+	resp, err := mon.httpClient.Do(req)
 	if err != nil {
 		panic(err)
 	}
@@ -54,12 +53,15 @@ func (m *monitor) check() {
 	body, _ := ioutil.ReadAll(resp.Body)
 	respObj := &response.Response{}
 	respObj.Unmarshal(body)
-	b := m.Found(respObj)
-	fmt.Println(b)
 
-	n := notifiers.Stdout{}
-	n.SetTitle(m.Title)
-	n.SetBody(string(body))
-	n.Notify()
+	found, detail := mon.Found(respObj)
+	if !found {
+		return
+	}
 
+	msg := notifiers.Msg{Title: &mon.Title, Body: detail}
+
+	for _, notifier := range mon.Alarms {
+		notifiers.Names[notifier](&msg)
+	}
 }
