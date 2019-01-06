@@ -8,7 +8,7 @@ import (
 	"text/template"
 	"time"
 
-	"bitbucket.org/xcrossing/elastic_alarm/paradigms"
+	"github.com/turnon/elastalarm/paradigms"
 )
 
 type config struct {

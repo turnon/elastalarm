@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"bitbucket.org/xcrossing/elastic_alarm/notifiers"
-	"bitbucket.org/xcrossing/elastic_alarm/response"
+	"github.com/turnon/elastalarm/notifiers"
+	"github.com/turnon/elastalarm/response"
 )
 
 type monitor struct {

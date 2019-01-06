@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"math/big"
 
-	"bitbucket.org/xcrossing/elastic_alarm/response"
+	"github.com/turnon/elastalarm/response"
 )
 
 type Count struct {
