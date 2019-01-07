@@ -40,9 +40,7 @@ const percentageTemplate = `
 	"aggs": {
 		"part": {
 			"filter": {{ .Paradigm.PartString }},
-			"aggs": {
-				{{ .Paradigm.DetailString }}
-			}
+			"aggs": {{ .DetailString }}
 		}
 	}
 }
@@ -74,7 +72,7 @@ func (p *Percentage) Found(resp *response.Response) (bool, *string) {
 		return match, nil
 	}
 
-	detail := "test percentage"
+	detail := resp.FlattenAggs()
 	return match, &detail
 }
 
@@ -84,8 +82,4 @@ func (p *Percentage) PartString() string {
 
 func (p *Percentage) WholeString() string {
 	return string(p.Whole)
-}
-
-func (p *Percentage) DetailString() string {
-	return string(p.Detail)
 }

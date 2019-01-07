@@ -44,7 +44,7 @@ func (c *Count) Found(resp *response.Response) (bool, *string) {
 		return match, nil
 	}
 
-	detail := resp.Aggs()
+	detail := resp.FlattenAggs()
 	return match, &detail
 }
 
