@@ -74,7 +74,7 @@ func (p *Percentage) Found(resp *response.Response) (bool, *string) {
 		return match, nil
 	}
 
-	detail := "wtf"
+	detail := "test percentage"
 	return match, &detail
 }
 
