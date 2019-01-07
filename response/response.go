@@ -55,9 +55,18 @@ func (b *bucket) aggs() *map[string]*singleAgg {
 			continue
 		}
 
-		agg := &singleAgg{}
-		json.Unmarshal(*rawMsgAddr, agg)
-		aggs[key] = agg
+		var tryUnmarshal map[string]*json.RawMessage
+		json.Unmarshal(*rawMsgAddr, &tryUnmarshal)
+
+		if tryUnmarshal["doc_count"] == nil {
+			agg := &singleAgg{}
+			json.Unmarshal(*rawMsgAddr, agg)
+			aggs[key] = agg
+		} else {
+			var subB bucket
+			json.Unmarshal(*rawMsgAddr, &subB)
+			return subB.aggs()
+		}
 	}
 
 	return &aggs
