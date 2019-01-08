@@ -23,5 +23,13 @@
             "gt": 100
         }
     },
+    "detail": {
+        "titles": {
+            "terms": {
+                "field": "title.keyword",
+                "size": 15
+            }
+        }
+    },
     "alarms": ["stdout", "ding"]
 }

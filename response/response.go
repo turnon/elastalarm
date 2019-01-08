@@ -1,6 +1,11 @@
 package response
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+	"strconv"
+	"strings"
+)
 
 type Response struct {
 	ScrollID     string          `json:"_scroll_id"`
@@ -27,4 +32,25 @@ func (resp *Response) Unmarshal(js []byte) {
 
 func (resp *Response) Total() int {
 	return resp.Hits.Total
+}
+
+func (resp *Response) Aggs() string {
+	return string(resp.Aggregations)
+}
+
+func (resp *Response) FlattenAggs() string {
+	var (
+		b  bucket
+		sb strings.Builder
+	)
+	b.unmarshal(resp.Aggregations)
+
+	b.flatten(func(arr []interface{}, count int) {
+		sb.WriteString(fmt.Sprint(arr))
+		sb.WriteString(" ")
+		sb.WriteString(strconv.Itoa(count))
+		sb.WriteString("\n")
+	})
+
+	return sb.String()
 }

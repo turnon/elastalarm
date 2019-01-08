@@ -16,5 +16,19 @@
             "gt": 0.02
         }
     },
+    "detail": {
+        "requestPaths": {
+            "terms": {
+                "field": "retcode.keyword"
+            },
+            "aggs": {
+                "hosts": {
+                    "terms": {
+                        "field": "requestPath.keyword"
+                    }
+                }
+            }
+        }
+    },
     "alarms": ["stdout", "email"]
 }

@@ -1,6 +1,7 @@
 package notifiers
 
 import (
+	"crypto/tls"
 	"fmt"
 	"os"
 	"strconv"
@@ -46,6 +47,7 @@ func emailFunc() func(*Msg) {
 	from := os.Getenv("ESALARM_MAIL_FROM")
 	passwd := os.Getenv("ESALARM_MAIL_PASSWD")
 	to := os.Getenv("ESALARM_MAIL_TO")
+	skipVerify := os.Getenv("ESALARM_MAIL_SKIP_VERIFY") != ""
 
 	return func(m *Msg) {
 		msg := gomail.NewMessage()
@@ -55,6 +57,10 @@ func emailFunc() func(*Msg) {
 		msg.SetBody("text/plain", *m.Body)
 
 		d := gomail.NewPlainDialer(host, port, from, passwd)
+		if skipVerify {
+			d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+		}
+
 		if err := d.DialAndSend(msg); err != nil {
 			panic(err)
 		}

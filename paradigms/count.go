@@ -28,7 +28,8 @@ const countTemplate = `
 			]
 		}
 	},
-	"size": 0
+	"size": 0,
+	"aggs": {{ .DetailString }}
 }
 `
 
@@ -43,7 +44,7 @@ func (c *Count) Found(resp *response.Response) (bool, *string) {
 		return match, nil
 	}
 
-	detail := "shit"
+	detail := resp.FlattenAggs()
 	return match, &detail
 }
 
