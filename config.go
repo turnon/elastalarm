@@ -24,17 +24,18 @@ type config struct {
 	Alarms       []string        `json:"alarms"`
 	paradigms.Paradigm
 	_reqBody *string
+	_ticker  *time.Ticker
 }
 
 func loadConfig(path string) *config {
 	js, err := ioutil.ReadFile(path)
 	if err != nil {
-		panic(err)
+		failToLoad(path, err)
 	}
 
 	cfg := &config{}
 	if err := json.Unmarshal(js, cfg); err != nil {
-		panic(err)
+		failToLoad(path, err)
 	}
 
 	if cfg.Skip {
@@ -42,27 +43,50 @@ func loadConfig(path string) *config {
 	}
 
 	cfg.Paradigm = paradigms.Names(cfg.ParadigmName)
+	if cfg.Paradigm == nil {
+		failToLoad(path, "no such paradigm '"+cfg.ParadigmName+"'")
+	}
 
 	if err := json.Unmarshal(cfg.Condition, cfg.Paradigm); err != nil {
-		panic(err)
+		failToLoad(path, err)
+	}
+
+	if err := cfg.makeReqBody(); err != nil {
+		failToLoad(path, err)
+	}
+
+	if err := cfg.makeTicker(); err != nil {
+		failToLoad(path, err)
 	}
 
 	return cfg
 }
 
-func (cfg *config) reqBody() *string {
-	if cfg._reqBody == nil {
-		t := template.New("a")
-		t.Parse(cfg.Template())
-		sb := &strings.Builder{}
-		t.Execute(sb, cfg)
-		str := sb.String()
-		cfg._reqBody = &str
+func failToLoad(path string, errMsg interface{}) {
+	panic(fmt.Sprintf("%s : %+v", path, errMsg))
+}
 
-		banner := strings.Repeat("*", len(cfg.Title))
-		fmt.Printf("%s\n%s\n%s\n%s\n", banner, cfg.Title, banner, str)
+func (cfg *config) makeReqBody() error {
+	t := template.New("a")
+	if _, err := t.Parse(cfg.Template()); err != nil {
+		return err
 	}
 
+	sb := &strings.Builder{}
+	if err := t.Execute(sb, cfg); err != nil {
+		return err
+	}
+
+	str := sb.String()
+	cfg._reqBody = &str
+
+	banner := strings.Repeat("*", len(cfg.Title))
+	fmt.Printf("%s\n%s\n%s\n%s\n", banner, cfg.Title, banner, str)
+
+	return nil
+}
+
+func (cfg *config) reqBody() *string {
 	return cfg._reqBody
 }
 
@@ -84,10 +108,20 @@ func (cfg *config) DetailString() string {
 	return "{}"
 }
 
-func (cfg *config) ticker() <-chan time.Time {
+func (cfg *config) makeTicker() error {
 	duration, err := time.ParseDuration(cfg.Interval)
 	if err != nil {
-		panic(err)
+		return err
 	}
-	return time.NewTicker(duration).C
+
+	cfg._ticker = time.NewTicker(duration)
+	return nil
+}
+
+func (cfg *config) stopTicker() {
+	cfg._ticker.Stop()
+}
+
+func (cfg *config) ticker() <-chan time.Time {
+	return cfg._ticker.C
 }

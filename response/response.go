@@ -24,10 +24,8 @@ type hit struct {
 	Source json.RawMessage `json:"_source"`
 }
 
-func (resp *Response) Unmarshal(js []byte) {
-	if err := json.Unmarshal(js, resp); err != nil {
-		panic(err)
-	}
+func (resp *Response) Unmarshal(js []byte) error {
+	return json.Unmarshal(js, resp)
 }
 
 func (resp *Response) Total() int {

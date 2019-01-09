@@ -1,12 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
-	"os"
 	"strings"
+	"time"
 
+	"github.com/pkg/errors"
 	"github.com/turnon/elastalarm/notifiers"
 	"github.com/turnon/elastalarm/response"
 )
@@ -14,8 +15,11 @@ import (
 type monitor struct {
 	httpClient *http.Client
 	url        string
+	done       chan bool
 	*config
 }
+
+const timeOut = 3 * time.Second
 
 func initMonitors(host string, files []string) {
 	for _, file := range files {
@@ -23,6 +27,7 @@ func initMonitors(host string, files []string) {
 		if cfg.Skip {
 			continue
 		}
+
 		m := newMonitor(host, cfg)
 		m.run()
 	}
@@ -30,40 +35,69 @@ func initMonitors(host string, files []string) {
 
 func newMonitor(host string, cfg *config) *monitor {
 	url := strings.Join([]string{host, cfg.Index, "_search"}, "/")
-	return &monitor{config: cfg, url: url, httpClient: &http.Client{}}
+	return &monitor{
+		config:     cfg,
+		url:        url,
+		httpClient: &http.Client{Timeout: timeOut},
+		done:       make(chan bool),
+	}
 }
 
 func (mon *monitor) run() {
 	go func() {
 		mon.check()
-		for range mon.ticker() {
-			mon.check()
+
+		for {
+			select {
+			case <-mon.ticker():
+				mon.check()
+			case <-mon.done:
+				return
+			}
 		}
 	}()
 }
 
 func (mon *monitor) check() {
-	req, _ := http.NewRequest("GET", mon.url, mon.ReqBody())
+	err := mon._check()
+	if err != nil {
+		mon.stopTicker()
+		close(mon.done)
+		log.Printf("%+v", err)
+	}
+}
+
+func (mon *monitor) _check() error {
+	req, err := http.NewRequest("GET", mon.url, mon.ReqBody())
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := mon.httpClient.Do(req)
 	if err != nil {
-		panic(err)
+		return errors.WithStack(err)
 	}
 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
 	if resp.StatusCode != 200 {
-		fmt.Fprintf(os.Stderr, "%d %s\n%s\n", resp.StatusCode, mon.Title, string(body))
-		return
+		return errors.New(resp.Status + "|" + string(body))
 	}
 
 	respObj := &response.Response{}
-	respObj.Unmarshal(body)
+	if err := respObj.Unmarshal(body); err != nil {
+		return errors.WithStack(err)
+	}
 
 	found, detail := mon.Found(respObj)
 	if !found {
-		return
+		return nil
 	}
 
 	msg := notifiers.Msg{Title: &mon.Title, Body: detail}
@@ -71,4 +105,6 @@ func (mon *monitor) check() {
 	for _, notifier := range mon.Alarms {
 		notifiers.Names[notifier](&msg)
 	}
+
+	return nil
 }
