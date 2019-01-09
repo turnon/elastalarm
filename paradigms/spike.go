@@ -13,6 +13,9 @@ type Spike struct {
 }
 
 type spikeAggs struct {
+	Past struct {
+		DocCount int `json:"doc_count"`
+	} `json:"past"`
 	Recent struct {
 		DocCount int `json:"doc_count"`
 	} `json:"recent"`
@@ -36,6 +39,17 @@ const spikeTemplate = `
 	},
 	"size": 0,
 	"aggs": {
+		"past": {
+			"filter": {
+				"range": {
+					"@timestamp": {
+						"gt": "now-{{ .Interval }}-{{ .Interval }}",
+						"lte": "now-{{ .Interval }}"
+					}
+				}
+			},
+			"aggs": {{ .DetailString }}
+		},
 		"recent": {
 			"filter": {
 				"range": {
@@ -51,14 +65,13 @@ const spikeTemplate = `
 `
 
 func (s *Spike) Template() string {
-	return percentageTemplate
+	return spikeTemplate
 }
 
 func (s *Spike) Found(resp *response.Response) (bool, *string) {
-	pastAndRecent := resp.Total()
 	aggs := &spikeAggs{}
 	json.Unmarshal(resp.Aggregations, aggs)
-	past := big.NewFloat(float64(pastAndRecent - aggs.Recent.DocCount))
+	past := big.NewFloat(float64(aggs.Past.DocCount))
 	recent := big.NewFloat(float64(aggs.Recent.DocCount))
 
 	var times big.Float

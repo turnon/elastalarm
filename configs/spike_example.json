@@ -1,0 +1,23 @@
+{
+    "title": "too much request suddenly",
+    "interval": "5m",
+    "index": "logstash-nginx-access-*",
+    "paradigm": "spike",
+    "condition": {
+        "scope": {
+            "match_all": {}
+        },
+        "match": {
+            "gt": 1
+        }
+    },
+    "detail": {
+        "request_paths": {
+            "terms": {
+                "field": "requestPath.keyword",
+                "size": 15
+            }
+        }
+    },
+    "alarms": ["stdout", "ding"]
+}

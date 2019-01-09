@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"strings"
@@ -43,6 +44,8 @@ func loadConfig(path string) *config {
 		cfg.Paradigm = &paradigms.Percentage{}
 	} else if cfg.ParadigmName == "count" {
 		cfg.Paradigm = &paradigms.Count{}
+	} else if cfg.ParadigmName == "spike" {
+		cfg.Paradigm = &paradigms.Spike{}
 	}
 
 	if err := json.Unmarshal(cfg.Condition, cfg.Paradigm); err != nil {
@@ -60,6 +63,9 @@ func (cfg *config) reqBody() *string {
 		t.Execute(sb, cfg)
 		str := sb.String()
 		cfg._reqBody = &str
+
+		banner := strings.Repeat("*", len(cfg.Title))
+		fmt.Printf("%s\n%s\n%s\n%s\n", banner, cfg.Title, banner, str)
 	}
 
 	return cfg._reqBody
