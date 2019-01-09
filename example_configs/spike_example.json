@@ -1,5 +1,5 @@
 {
-    "title": "too much request suddenly",
+    "title": "amount of requests change a lot",
     "now": "2018-12-08T23:59:52.586Z",
     "interval": "5m",
     "index": "logstash-nginx-access-*",
@@ -9,7 +9,9 @@
             "match_all": {}
         },
         "match": {
-            "gt": 1
+            "not": true,
+            "gt": 0.5,
+            "lt": 2
         }
     },
     "detail": {

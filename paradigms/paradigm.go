@@ -28,10 +28,12 @@ func Names(name string) Paradigm {
 
 type Match struct {
 	Gt, Lt *float64
+	Not    bool
 }
 
 func (m *Match) match(v *big.Float) (bool, string) {
 	result := true
+	verb := "is"
 
 	left := m.leftBound()
 	if v.Cmp(configValue(&left)) != 1 {
@@ -43,7 +45,12 @@ func (m *Match) match(v *big.Float) (bool, string) {
 		result = result && false
 	}
 
-	return result, fmt.Sprintf("%s is between (%f, %f)", v.String(), left, right)
+	if m.Not {
+		result = !result
+		verb = "is not"
+	}
+
+	return result, fmt.Sprintf("%s %s between (%f, %f)", v.String(), verb, left, right)
 }
 
 func (m *Match) leftBound() float64 {
