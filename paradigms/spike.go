@@ -76,13 +76,13 @@ func (s *Spike) Found(resp *response.Response) (bool, *string) {
 
 	var times big.Float
 	times.Quo(recent, past)
-	match := s.Match.ing(&times)
+	match, desc := s.match(&times)
 
 	if !match {
 		return match, nil
 	}
 
-	detail := resp.FlattenAggs()
+	detail := desc + "\n\n" + resp.FlattenAggs()
 	return match, &detail
 }
 

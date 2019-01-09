@@ -1,6 +1,8 @@
 package paradigms
 
 import (
+	"fmt"
+	"math"
 	"math/big"
 
 	"github.com/turnon/elastalarm/response"
@@ -28,16 +30,34 @@ type Match struct {
 	Gt, Lt *float64
 }
 
-func (m *Match) ing(v *big.Float) bool {
-	if m.Gt != nil && v.Cmp(configValue(m.Gt)) != 1 {
-		return false
+func (m *Match) match(v *big.Float) (bool, string) {
+	result := true
+
+	left := m.leftBound()
+	if v.Cmp(configValue(&left)) != 1 {
+		result = result && false
 	}
 
-	if m.Lt != nil && v.Cmp(configValue(m.Lt)) != -1 {
-		return false
+	right := m.rightBound()
+	if v.Cmp(configValue(&right)) != -1 {
+		result = result && false
 	}
 
-	return true
+	return result, fmt.Sprintf("%s is between (%f, %f)", v.String(), left, right)
+}
+
+func (m *Match) leftBound() float64 {
+	if m.Gt == nil {
+		return math.Inf(-1)
+	}
+	return *m.Gt
+}
+
+func (m *Match) rightBound() float64 {
+	if m.Lt == nil {
+		return math.Inf(1)
+	}
+	return *m.Lt
 }
 
 func configValue(v *float64) *big.Float {
