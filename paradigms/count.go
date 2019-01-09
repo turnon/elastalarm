@@ -2,6 +2,7 @@ package paradigms
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/big"
 
 	"github.com/turnon/elastalarm/response"
@@ -44,7 +45,7 @@ func (c *Count) Found(resp *response.Response) (bool, *string) {
 		return match, nil
 	}
 
-	detail := desc + "\n\n" + resp.FlattenAggs()
+	detail := fmt.Sprintf("total %d %s\n\n%s", resp.Total(), desc, resp.FlattenAggs())
 	return match, &detail
 }
 

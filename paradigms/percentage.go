@@ -2,6 +2,7 @@ package paradigms
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/big"
 
 	"github.com/turnon/elastalarm/response"
@@ -72,7 +73,8 @@ func (p *Percentage) Found(resp *response.Response) (bool, *string) {
 		return match, nil
 	}
 
-	detail := desc + "\n\n" + resp.FlattenAggs()
+	detail := fmt.Sprintf("%d / %d = %s%% %s\n\n%s",
+		aggs.Part.DocCount, total, percent.String(), desc, resp.FlattenAggs())
 	return match, &detail
 }
 

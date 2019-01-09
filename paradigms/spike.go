@@ -2,6 +2,7 @@ package paradigms
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/big"
 
 	"github.com/turnon/elastalarm/response"
@@ -82,7 +83,8 @@ func (s *Spike) Found(resp *response.Response) (bool, *string) {
 		return match, nil
 	}
 
-	detail := desc + "\n\n" + resp.FlattenAggs()
+	detail := fmt.Sprintf("%d / %d = %s %s\n\n%s",
+		aggs.Recent.DocCount, aggs.Past.DocCount, times.String(), desc, resp.FlattenAggs())
 	return match, &detail
 }
 

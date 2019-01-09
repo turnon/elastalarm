@@ -50,7 +50,7 @@ func (m *Match) match(v *big.Float) (bool, string) {
 		verb = "is not"
 	}
 
-	return result, fmt.Sprintf("%s %s between (%f, %f)", v.String(), verb, left, right)
+	return result, fmt.Sprintf("%s between (%f, %f)", verb, left, right)
 }
 
 func (m *Match) leftBound() float64 {
