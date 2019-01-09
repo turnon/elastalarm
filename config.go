@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"strings"
@@ -14,6 +15,7 @@ import (
 type config struct {
 	Skip         bool            `json:"skip"`
 	Title        string          `json:"title"`
+	Now          string          `json:"now"`
 	Interval     string          `json:"interval"`
 	Index        string          `json:"index"`
 	ParadigmName string          `json:"paradigm"`
@@ -39,11 +41,7 @@ func loadConfig(path string) *config {
 		return cfg
 	}
 
-	if cfg.ParadigmName == "percentage" {
-		cfg.Paradigm = &paradigms.Percentage{}
-	} else if cfg.ParadigmName == "count" {
-		cfg.Paradigm = &paradigms.Count{}
-	}
+	cfg.Paradigm = paradigms.Names(cfg.ParadigmName)
 
 	if err := json.Unmarshal(cfg.Condition, cfg.Paradigm); err != nil {
 		panic(err)
@@ -60,6 +58,9 @@ func (cfg *config) reqBody() *string {
 		t.Execute(sb, cfg)
 		str := sb.String()
 		cfg._reqBody = &str
+
+		banner := strings.Repeat("*", len(cfg.Title))
+		fmt.Printf("%s\n%s\n%s\n%s\n", banner, cfg.Title, banner, str)
 	}
 
 	return cfg._reqBody
@@ -67,6 +68,13 @@ func (cfg *config) reqBody() *string {
 
 func (cfg *config) ReqBody() io.Reader {
 	return strings.NewReader(*cfg.reqBody())
+}
+
+func (cfg *config) NowString() string {
+	if cfg.Now == "" || cfg.Now == "now" {
+		return "now"
+	}
+	return cfg.Now + "||"
 }
 
 func (cfg *config) DetailString() string {

@@ -28,7 +28,7 @@ const percentageTemplate = `
 				{
 					"range": {
 						"@timestamp": {
-							"gt": "now-{{ .Interval }}"
+							"gt": "{{ .NowString }}-{{ .Interval }}"
 						}
 					}
 				},
@@ -66,13 +66,13 @@ func (p *Percentage) Found(resp *response.Response) (bool, *string) {
 	var quo, percent big.Float
 	quo.Quo(part, whole)
 	percent.Mul(&quo, hundred)
-	match := p.Match.ing(&percent)
+	match, desc := p.match(&percent)
 
 	if !match {
 		return match, nil
 	}
 
-	detail := resp.FlattenAggs()
+	detail := desc + "\n\n" + resp.FlattenAggs()
 	return match, &detail
 }
 

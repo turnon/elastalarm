@@ -1,6 +1,7 @@
 {
     "title": "too much qcloud error",
-    "interval": "1440h",
+    "now": "2018-12-08T23:59:52.586Z",
+    "interval": "15m",
     "index": "logstash-production-*",
     "paradigm": "count",
     "condition": {
@@ -20,7 +21,7 @@
             }
         },
         "match": {
-            "gt": 100
+            "gt": 0
         }
     },
     "detail": {

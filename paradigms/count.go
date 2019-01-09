@@ -20,7 +20,7 @@ const countTemplate = `
 				{
 					"range": {
 						"@timestamp": {
-							"gt": "now-{{ .Interval }}"
+							"gt": "{{ .NowString }}-{{ .Interval }}"
 						}
 					}
 				},
@@ -39,12 +39,12 @@ func (c *Count) Template() string {
 
 func (c *Count) Found(resp *response.Response) (bool, *string) {
 	total := big.NewFloat(float64(resp.Total()))
-	match := c.Match.ing(total)
+	match, desc := c.match(total)
 	if !match {
 		return match, nil
 	}
 
-	detail := resp.FlattenAggs()
+	detail := desc + "\n\n" + resp.FlattenAggs()
 	return match, &detail
 }
 

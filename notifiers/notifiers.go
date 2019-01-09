@@ -28,7 +28,7 @@ func (msg *Msg) join(seperate string) string {
 }
 
 func stdout(m *Msg) {
-	fmt.Println(*m.Title, *m.Body)
+	fmt.Println(*m.Title, "\n\n", *m.Body)
 }
 
 func emailFunc() func(*Msg) {
