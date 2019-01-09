@@ -1,6 +1,7 @@
 {
-    "title": "percent",
-    "interval": "1440h",
+    "title": "too much 5XX response",
+    "now": "2018-12-08T23:59:52.586Z",
+    "interval": "30m",
     "index": "logstash-nginx-access-*",
     "paradigm": "percentage",
     "condition": {

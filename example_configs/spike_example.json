@@ -1,5 +1,6 @@
 {
     "title": "too much request suddenly",
+    "now": "2018-12-08T23:59:52.586Z",
     "interval": "5m",
     "index": "logstash-nginx-access-*",
     "paradigm": "spike",

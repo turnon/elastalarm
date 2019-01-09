@@ -29,7 +29,7 @@ const spikeTemplate = `
 				{
 					"range": {
 						"@timestamp": {
-							"gt": "now-{{ .Interval }}-{{ .Interval }}"
+							"gt": "{{ .NowString }}-{{ .Interval }}-{{ .Interval }}"
 						}
 					}
 				},
@@ -43,8 +43,8 @@ const spikeTemplate = `
 			"filter": {
 				"range": {
 					"@timestamp": {
-						"gt": "now-{{ .Interval }}-{{ .Interval }}",
-						"lte": "now-{{ .Interval }}"
+						"gt": "{{ .NowString }}-{{ .Interval }}-{{ .Interval }}",
+						"lte": "{{ .NowString }}-{{ .Interval }}"
 					}
 				}
 			},
@@ -54,7 +54,7 @@ const spikeTemplate = `
 			"filter": {
 				"range": {
 					"@timestamp": {
-						"gt": "now-{{ .Interval }}"
+						"gt": "{{ .NowString }}-{{ .Interval }}"
 					}
 				}
 			},

@@ -15,6 +15,7 @@ import (
 type config struct {
 	Skip         bool            `json:"skip"`
 	Title        string          `json:"title"`
+	Now          string          `json:"now"`
 	Interval     string          `json:"interval"`
 	Index        string          `json:"index"`
 	ParadigmName string          `json:"paradigm"`
@@ -73,6 +74,13 @@ func (cfg *config) reqBody() *string {
 
 func (cfg *config) ReqBody() io.Reader {
 	return strings.NewReader(*cfg.reqBody())
+}
+
+func (cfg *config) NowString() string {
+	if cfg.Now == "" || cfg.Now == "now" {
+		return "now"
+	}
+	return cfg.Now + "||"
 }
 
 func (cfg *config) DetailString() string {

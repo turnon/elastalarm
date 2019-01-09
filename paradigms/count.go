@@ -20,7 +20,7 @@ const countTemplate = `
 				{
 					"range": {
 						"@timestamp": {
-							"gt": "now-{{ .Interval }}"
+							"gt": "{{ .NowString }}-{{ .Interval }}"
 						}
 					}
 				},
