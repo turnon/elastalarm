@@ -108,11 +108,11 @@ func (b *bucket) _flatten(keys []interface{}, count int, f func([]interface{}, i
 
 	for name, a := range aggs {
 		for _, b := range a.buckets() {
-			key := b.key
+			var moreKeys = keys
 			if name.prefix != "" {
-				key = name.prefix + "/" + key
+				moreKeys = append(moreKeys, name.prefix)
 			}
-			moreKeys := append(keys, key)
+			moreKeys = append(moreKeys, b.key)
 			b._flatten(moreKeys, b.docCount, f)
 		}
 	}
