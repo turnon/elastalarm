@@ -43,6 +43,12 @@ func newMonitor(host string, cfg *config) *monitor {
 
 func (mon *monitor) run() {
 	go func() {
+		defer func() {
+			if err := recover(); err != nil {
+				log.Println(err)
+			}
+		}()
+
 		mon.check()
 		for range mon.ticker() {
 			mon.check()
@@ -51,7 +57,11 @@ func (mon *monitor) run() {
 }
 
 func (mon *monitor) check() {
-	req, _ := http.NewRequest("GET", mon.url, mon.ReqBody())
+	req, err := http.NewRequest("GET", mon.url, mon.ReqBody())
+	if err != nil {
+		panic(err)
+	}
+
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := mon.httpClient.Do(req)
@@ -61,7 +71,11 @@ func (mon *monitor) check() {
 	}
 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+
 	if resp.StatusCode != 200 {
 		log.Printf("%d|%s|%s\n", resp.StatusCode, mon.Title, string(body))
 		return
