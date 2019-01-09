@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/turnon/elastalarm/notifiers"
 	"github.com/turnon/elastalarm/response"
@@ -15,6 +16,8 @@ type monitor struct {
 	url        string
 	*config
 }
+
+const timeOut = 3 * time.Second
 
 func initMonitors(host string, files []string) {
 	for _, file := range files {
@@ -35,7 +38,7 @@ func initMonitors(host string, files []string) {
 
 func newMonitor(host string, cfg *config) *monitor {
 	url := strings.Join([]string{host, cfg.Index, "_search"}, "/")
-	return &monitor{config: cfg, url: url, httpClient: &http.Client{}}
+	return &monitor{config: cfg, url: url, httpClient: &http.Client{Timeout: timeOut}}
 }
 
 func (mon *monitor) run() {
@@ -53,7 +56,8 @@ func (mon *monitor) check() {
 
 	resp, err := mon.httpClient.Do(req)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return
 	}
 	defer resp.Body.Close()
 
