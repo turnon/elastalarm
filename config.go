@@ -26,28 +26,28 @@ type config struct {
 	_reqBody *string
 }
 
-func loadConfig(path string) *config {
+func loadConfig(path string) (*config, error) {
 	js, err := ioutil.ReadFile(path)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	cfg := &config{}
 	if err := json.Unmarshal(js, cfg); err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	if cfg.Skip {
-		return cfg
+		return cfg, nil
 	}
 
 	cfg.Paradigm = paradigms.Names(cfg.ParadigmName)
 
 	if err := json.Unmarshal(cfg.Condition, cfg.Paradigm); err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return cfg
+	return cfg, nil
 }
 
 func (cfg *config) reqBody() *string {

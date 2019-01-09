@@ -1,10 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/turnon/elastalarm/notifiers"
@@ -19,10 +18,16 @@ type monitor struct {
 
 func initMonitors(host string, files []string) {
 	for _, file := range files {
-		cfg := loadConfig(file)
+		cfg, err := loadConfig(file)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
 		if cfg.Skip {
 			continue
 		}
+
 		m := newMonitor(host, cfg)
 		m.run()
 	}
@@ -54,7 +59,7 @@ func (mon *monitor) check() {
 
 	body, _ := ioutil.ReadAll(resp.Body)
 	if resp.StatusCode != 200 {
-		fmt.Fprintf(os.Stderr, "%d %s\n%s\n", resp.StatusCode, mon.Title, string(body))
+		log.Printf("%d|%s|%s\n", resp.StatusCode, mon.Title, string(body))
 		return
 	}
 
