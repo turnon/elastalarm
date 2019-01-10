@@ -103,7 +103,9 @@ func (mon *monitor) _check() error {
 	msg := notifiers.Msg{Title: &mon.Title, Body: detail}
 
 	for _, notifier := range mon.Alarms {
-		notifiers.Names[notifier](&msg)
+		if err := notifiers.Names[notifier](&msg); err != nil {
+			log.Printf("%+v", err)
+		}
 	}
 
 	return nil
