@@ -9,6 +9,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/turnon/elastalarm/notifiers"
 	"github.com/turnon/elastalarm/paradigms"
 )
 
@@ -57,6 +58,12 @@ func loadConfig(path string) *config {
 
 	if err := cfg.makeTicker(); err != nil {
 		failToLoad(path, err)
+	}
+
+	for _, notifier := range cfg.Alarms {
+		if notifiers.Names[notifier] == nil {
+			failToLoad(path, "no such notifier '"+notifier+"'")
+		}
 	}
 
 	return cfg
