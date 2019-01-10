@@ -8,10 +8,11 @@ import (
 	"strings"
 
 	"github.com/hugozhu/godingtalk"
+	"github.com/pkg/errors"
 	gomail "gopkg.in/gomail.v2"
 )
 
-var Names = make(map[string](func(*Msg)))
+var Names = make(map[string](func(*Msg) error))
 
 func init() {
 	Names["stdout"] = stdout
@@ -27,11 +28,12 @@ func (msg *Msg) join(seperate string) string {
 	return *msg.Title + seperate + *msg.Body
 }
 
-func stdout(m *Msg) {
+func stdout(m *Msg) error {
 	fmt.Println(*m.Title, "\n\n", *m.Body)
+	return nil
 }
 
-func emailFunc() func(*Msg) {
+func emailFunc() func(*Msg) error {
 	server := os.Getenv("ESALARM_MAIL_SERVER")
 	if server == "" {
 		return nil
@@ -49,7 +51,7 @@ func emailFunc() func(*Msg) {
 	to := os.Getenv("ESALARM_MAIL_TO")
 	skipVerify := os.Getenv("ESALARM_MAIL_SKIP_VERIFY") != ""
 
-	return func(m *Msg) {
+	return func(m *Msg) error {
 		msg := gomail.NewMessage()
 		msg.SetHeader("From", from)
 		msg.SetHeader("To", to)
@@ -62,12 +64,14 @@ func emailFunc() func(*Msg) {
 		}
 
 		if err := d.DialAndSend(msg); err != nil {
-			panic(err)
+			return errors.WithStack(err)
 		}
+
+		return nil
 	}
 }
 
-func dingFunc() func(*Msg) {
+func dingFunc() func(*Msg) error {
 	corpID := os.Getenv("ESALARM_DING_CORPID")
 	secret := os.Getenv("ESALARM_DING_SECRET")
 	chatID := os.Getenv("ESALARM_DING_CHATID")
@@ -75,16 +79,25 @@ func dingFunc() func(*Msg) {
 	c := godingtalk.NewDingTalkClient(corpID, secret)
 	c.Cache = godingtalk.NewInMemoryCache()
 	msgs := make(chan *Msg)
+	errs := make(chan error)
 
 	go func() {
 		for {
 			msg := <-msgs
-			c.RefreshAccessToken()
-			c.SendTextMessage("", chatID, msg.join("\n\n"))
+			if err := c.RefreshAccessToken(); err != nil {
+				errs <- errors.WithStack(err)
+			}
+
+			if _, err := c.SendTextMessage("", chatID, msg.join("\n\n")); err != nil {
+				errs <- errors.WithStack(err)
+			}
+
+			errs <- nil
 		}
 	}()
 
-	return func(m *Msg) {
+	return func(m *Msg) error {
 		msgs <- m
+		return <-errs
 	}
 }

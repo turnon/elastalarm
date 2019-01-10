@@ -2,8 +2,13 @@ package main
 
 import (
 	"flag"
+	"log"
 	"path/filepath"
 )
+
+func init() {
+	log.SetFlags(log.Lshortfile | log.LstdFlags)
+}
 
 func main() {
 	host := flag.String("host", "http://0.0.0.0:9200", "es host")
