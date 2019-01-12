@@ -86,10 +86,12 @@ func dingFunc() func(*Msg) error {
 			msg := <-msgs
 			if err := c.RefreshAccessToken(); err != nil {
 				errs <- errors.WithStack(err)
+				continue
 			}
 
 			if _, err := c.SendTextMessage("", chatID, msg.join("\n\n")); err != nil {
 				errs <- errors.WithStack(err)
+				continue
 			}
 
 			errs <- nil
