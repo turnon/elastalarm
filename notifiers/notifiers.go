@@ -1,7 +1,6 @@
 package notifiers
 
 import (
-	"crypto/tls"
 	"fmt"
 	"os"
 	"strconv"
@@ -9,7 +8,6 @@ import (
 
 	"github.com/hugozhu/godingtalk"
 	"github.com/pkg/errors"
-	gomail "gopkg.in/gomail.v2"
 )
 
 var (
@@ -37,12 +35,16 @@ func (msg *Msg) join(seperate string) string {
 	return *msg.Title + seperate + *msg.Body
 }
 
+type notifier interface {
+	Send(*Msg) error
+}
+
 func stdout(m *Msg) error {
 	fmt.Println(*m.Title, "\n\n", *m.Body)
 	return nil
 }
 
-func emailFunc() (func(*Msg) error, error) {
+func emailFunc() (map[string]string, error) {
 	server := os.Getenv("ESALARM_MAIL_SERVER")
 	from := os.Getenv("ESALARM_MAIL_FROM")
 	passwd := os.Getenv("ESALARM_MAIL_PASSWD")
@@ -56,30 +58,32 @@ func emailFunc() (func(*Msg) error, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "无法解析 ESALARM_MAIL_SERVER")
 	}
-
-	to := os.Getenv("ESALARM_MAIL_TO")
+	// to := os.Getenv("ESALARM_MAIL_TO")
+	to := []string{"yuanzp@reocar.com", "1020715764@qq.com"}
 	skipVerify := os.Getenv("ESALARM_MAIL_SKIP_VERIFY") != ""
 
-	emailFunction := func(m *Msg) error {
-		msg := gomail.NewMessage()
-		msg.SetHeader("From", from)
-		msg.SetHeader("To", to)
-		msg.SetHeader("Subject", *m.Title)
-		msg.SetBody("text/plain", *m.Body)
+	mail := &email{}
 
-		d := gomail.NewPlainDialer(host, port, from, passwd)
-		if skipVerify {
-			d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
-		}
+	// emailFunction := func(m *Msg) error {
+	// 	msg := gomail.NewMessage()
+	// 	msg.SetHeader("From", from)
+	// 	msg.SetHeader("To", to...)
+	// 	msg.SetHeader("Subject", *m.Title)
+	// 	msg.SetBody("text/plain", *m.Body)
 
-		if err := d.DialAndSend(msg); err != nil {
-			return errors.WithStack(err)
-		}
+	// 	d := gomail.NewPlainDialer(host, port, from, passwd)
+	// 	if skipVerify {
+	// 		d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+	// 	}
 
-		return nil
-	}
+	// 	if err := d.DialAndSend(msg); err != nil {
+	// 		return errors.WithStack(err)
+	// 	}
 
-	return emailFunction, nil
+	// 	return nil
+	// }
+
+	// return emailFunction, nil
 }
 
 func dingFunc() (func(*Msg) error, error) {

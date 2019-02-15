@@ -32,5 +32,7 @@
             }
         }
     },
-    "alarms": ["stdout", "ding"]
+    "alarms": {
+        "stdout": {}
+    }
 }

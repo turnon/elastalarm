@@ -14,15 +14,15 @@ import (
 )
 
 type config struct {
-	Skip         bool            `json:"skip"`
-	Title        string          `json:"title"`
-	Now          string          `json:"now"`
-	Interval     string          `json:"interval"`
-	Index        string          `json:"index"`
-	ParadigmName string          `json:"paradigm"`
-	Condition    json.RawMessage `json:"condition"`
-	Detail       json.RawMessage `json:"detail"`
-	Alarms       []string        `json:"alarms"`
+	Skip         bool                        `json:"skip"`
+	Title        string                      `json:"title"`
+	Now          string                      `json:"now"`
+	Interval     string                      `json:"interval"`
+	Index        string                      `json:"index"`
+	ParadigmName string                      `json:"paradigm"`
+	Condition    json.RawMessage             `json:"condition"`
+	Detail       json.RawMessage             `json:"detail"`
+	Alarms       map[string]*json.RawMessage `json:"alarms"`
 	paradigms.Paradigm
 	_reqBody *string
 	_ticker  *time.Ticker
@@ -60,7 +60,7 @@ func loadConfig(path string) *config {
 		failToLoad(path, err)
 	}
 
-	for _, notifier := range cfg.Alarms {
+	for notifier, settings := range cfg.Alarms {
 		if err := notifiers.Errors[notifier]; err != nil {
 			failToLoad(path, err)
 		}
