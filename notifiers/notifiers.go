@@ -12,12 +12,21 @@ import (
 	gomail "gopkg.in/gomail.v2"
 )
 
-var Names = make(map[string](func(*Msg) error))
+var (
+	Names  = make(map[string](func(*Msg) error))
+	Errors = make(map[string]error)
+)
 
 func init() {
 	Names["stdout"] = stdout
-	Names["email"] = emailFunc()
-	Names["ding"] = dingFunc()
+	initNotifier("email", emailFunc)
+	initNotifier("ding", dingFunc)
+}
+
+func initNotifier(name string, notifierGenerator func() (func(*Msg) error, error)) {
+	notifier, errMsg := notifierGenerator()
+	Names[name] = notifier
+	Errors[name] = errMsg
 }
 
 type Msg struct {
@@ -33,25 +42,25 @@ func stdout(m *Msg) error {
 	return nil
 }
 
-func emailFunc() func(*Msg) error {
+func emailFunc() (func(*Msg) error, error) {
 	server := os.Getenv("ESALARM_MAIL_SERVER")
-	if server == "" {
-		return nil
+	from := os.Getenv("ESALARM_MAIL_FROM")
+	passwd := os.Getenv("ESALARM_MAIL_PASSWD")
+	if server == "" || from == "" || passwd == "" {
+		return nil, errors.New("邮件服务未配置 ESALARM_MAIL_SERVER / ESALARM_MAIL_FROM / ESALARM_MAIL_PASSWD")
 	}
 
 	hostPort := strings.Split(server, ":")
 	host := hostPort[0]
 	port, err := strconv.Atoi(hostPort[1])
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrap(err, "无法解析 ESALARM_MAIL_SERVER")
 	}
 
-	from := os.Getenv("ESALARM_MAIL_FROM")
-	passwd := os.Getenv("ESALARM_MAIL_PASSWD")
 	to := os.Getenv("ESALARM_MAIL_TO")
 	skipVerify := os.Getenv("ESALARM_MAIL_SKIP_VERIFY") != ""
 
-	return func(m *Msg) error {
+	emailFunction := func(m *Msg) error {
 		msg := gomail.NewMessage()
 		msg.SetHeader("From", from)
 		msg.SetHeader("To", to)
@@ -69,15 +78,26 @@ func emailFunc() func(*Msg) error {
 
 		return nil
 	}
+
+	return emailFunction, nil
 }
 
-func dingFunc() func(*Msg) error {
+func dingFunc() (func(*Msg) error, error) {
 	corpID := os.Getenv("ESALARM_DING_CORPID")
 	secret := os.Getenv("ESALARM_DING_SECRET")
-	chatID := os.Getenv("ESALARM_DING_CHATID")
+
+	if corpID == "" || secret == "" {
+		return nil, errors.New("ESALARM_DING_CORPID / ESALARM_DING_SECRET 未设置")
+	}
 
 	c := godingtalk.NewDingTalkClient(corpID, secret)
 	c.Cache = godingtalk.NewInMemoryCache()
+
+	if err := c.RefreshAccessToken(); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	chatID := os.Getenv("ESALARM_DING_CHATID")
 	msgs := make(chan *Msg)
 	errs := make(chan error)
 
@@ -101,5 +121,5 @@ func dingFunc() func(*Msg) error {
 	return func(m *Msg) error {
 		msgs <- m
 		return <-errs
-	}
+	}, nil
 }
