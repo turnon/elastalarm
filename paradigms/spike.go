@@ -10,6 +10,7 @@ import (
 
 type Spike struct {
 	Scope json.RawMessage `json:"scope"`
+	Ref   int             `json:"reference"`
 	Match `json:"match"`
 }
 
@@ -69,10 +70,29 @@ func (s *Spike) Template() string {
 	return spikeTemplate
 }
 
+func (s *Spike) pastCount(aggs *spikeAggs) int {
+	count := aggs.Past.DocCount
+	if count != 0 {
+		return count
+	}
+
+	if s.Ref != 0 {
+		return s.Ref
+	}
+
+	return 0
+}
+
 func (s *Spike) Found(resp *response.Response) (bool, *string) {
 	aggs := &spikeAggs{}
 	json.Unmarshal(resp.Aggregations, aggs)
-	past := big.NewFloat(float64(aggs.Past.DocCount))
+
+	pastCount := s.pastCount(aggs)
+	if pastCount == 0 {
+		return false, nil
+	}
+
+	past := big.NewFloat(float64(pastCount))
 	recent := big.NewFloat(float64(aggs.Recent.DocCount))
 
 	var times big.Float
@@ -83,8 +103,8 @@ func (s *Spike) Found(resp *response.Response) (bool, *string) {
 		return match, nil
 	}
 
-	detail := fmt.Sprintf("%d / %d = %s %s\n\n%s",
-		aggs.Recent.DocCount, aggs.Past.DocCount, times.String(), desc, resp.FlattenAggs())
+	detail := fmt.Sprintf("%d / %d = %s %s. actual past doc_ount is %d \n\n%s",
+		aggs.Recent.DocCount, pastCount, times.String(), desc, aggs.Past.DocCount, resp.FlattenAggs())
 	return match, &detail
 }
 

@@ -8,6 +8,7 @@
         "scope": {
             "match_all": {}
         },
+        "reference": 18000,
         "match": {
             "not": true,
             "gt": 0.5,
