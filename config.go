@@ -61,8 +61,8 @@ func loadConfig(path string) *config {
 	}
 
 	for _, notifier := range cfg.Alarms {
-		if notifiers.Names[notifier] == nil {
-			failToLoad(path, "no such notifier '"+notifier+"'")
+		if err := notifiers.Errors[notifier]; err != nil {
+			failToLoad(path, err)
 		}
 	}
 
