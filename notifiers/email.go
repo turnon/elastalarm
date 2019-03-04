@@ -15,7 +15,7 @@ type emailSender struct {
 	host, passwd, from string
 	port               int
 	skipVerify         bool
-	To                 []string `json:"alarms"`
+	To                 []string `json:"to"`
 }
 
 func (s *emailSender) Send(m *Msg) error {
