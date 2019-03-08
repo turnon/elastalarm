@@ -32,5 +32,11 @@
             }
         }
     },
-    "alarms": ["stdout", "ding"]
+    "alarms": {
+        "stdout": {},
+        "ding": {
+            "users": ["19554357"],
+            "chats": ["chat90217a97c7ae70a1c12"]
+        }
+    }
 }
