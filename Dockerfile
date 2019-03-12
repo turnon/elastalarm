@@ -11,8 +11,7 @@ RUN apk add --no-cache git \
 FROM alpine:latest
 
 RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
-WORKDIR /root/
+WORKDIR /usr/bin
 COPY --from=builder /elastalarm .
-RUN chmod +x /root/elastalarm
 
-ENTRYPOINT ["/root/elastalarm", "-configs", "/configs"]
+ENTRYPOINT ["/usr/bin/elastalarm", "-configs", "/configs"]
