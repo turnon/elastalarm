@@ -15,7 +15,7 @@ docker run -v /path/to/config_dir:/configs -d --env-file env.list \
 
 ## 统计方法和配置方式
 
-配置例子可见`./example_configs`，统计方式解释如下
+配置例子可见`./example_configs/*.json`，配置文件的各字段意义见`./example_configs/doc.md`，统计方式解释如下
 
 * `count`： `interval`内根据`scope`条件所查出doc数量，是否符合范围
 * `percentage`： `interval`内`part`除以`whole`所得的百分比，是否符合范围
@@ -29,10 +29,9 @@ docker run -v /path/to/config_dir:/configs -d --env-file env.list \
 * `ESALARM_MAIL_SKIP_VERIFY=true`（跳过SSL）
 * `ESALARM_MAIL_FROM=someone@qq.com`
 * `ESALARM_MAIL_PASSWD=klkjjfkj5645`
-* `ESALARM_MAIL_TO=another_one@qq.com`
 
 用于钉钉通知
 
 * `ESALARM_DING_CORPID=ding134nbcvbmn`
 * `ESALARM_DING_SECRET=S-mbvfhbfjhgjh657nvnjvhf74`
-* `ESALARM_DING_CHATID=chatbjbnjghgukh`（群ID）
+* `ESALARM_DING_AGENT=12345`

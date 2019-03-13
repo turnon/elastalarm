@@ -3,7 +3,7 @@
 ## 查询
 
 * now： 可选，用于测试时固定时间范围为now-interval
-* interval： 监控的周期
+* interval： 监控的周期，以文档的`@timestamp`字段来过滤
 * index： 索引名或通配符
 * paradigm： 统计方式，可填`count`、`percentage`、`spike`之一
 * condition： 因paradigm而异，见“各paradigm专用键”
