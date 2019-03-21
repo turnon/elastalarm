@@ -4,6 +4,7 @@ WORKDIR $GOPATH/src/github.com/turnon/elastalarm
 COPY . ./
 
 RUN apk add --no-cache git \
+    && export GO111MODULE=on \
     && go get ./... \
     && go build -o /elastalarm \
     && apk del git
