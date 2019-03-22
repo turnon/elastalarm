@@ -3,14 +3,14 @@
 ## 运行
 
 ```
-elastalarm -host=http://192.168.0.60:9200 -configs=/path/to/config_dir
+elastalarm -configs=/path/to/config_dir
 ```
 
 或者
 
 ```
 docker run -v /path/to/config_dir:/configs -d --env-file env.list \
-  daocloud.io/shutdown/elastalarm:latest -host http://192.168.0.60:9200
+  daocloud.io/shutdown/elastalarm:latest
 ```
 
 ## 统计方法和配置方式
@@ -22,6 +22,10 @@ docker run -v /path/to/config_dir:/configs -d --env-file env.list \
 * `spike`： 最近`interval`的`scope`与上一`interval`的`scope`相比，变化幅度是否符合范围
 
 ## 环境变量
+
+ElasticSearch服务地址
+
+* `ESALARM_HOST=http://192.168.0.60:9200`
 
 用于邮件通知
 
