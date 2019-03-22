@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
 	"path/filepath"
 )
 
@@ -11,11 +12,15 @@ func init() {
 }
 
 func main() {
-	host := flag.String("host", "http://0.0.0.0:9200", "es host")
+	host := os.Getenv("ESALARM_HOST")
+	if host == "" {
+		panic("ES地址未配置")
+	}
+
 	cfgPath := flag.String("configs", "config", "config files location")
 	flag.Parse()
 
-	initMonitors(*host, configFiles(*cfgPath))
+	initMonitors(host, configFiles(*cfgPath))
 
 	<-make(chan bool)
 }

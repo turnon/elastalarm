@@ -1,0 +1,6 @@
+github.com/hugozhu/godingtalk v0.0.0-20181111080041-ba62d92f91a5 h1:Uaeqjw4oeW7hnOXlTOa08G6cnC7gWhsYY6HvV/FA5sI=
+github.com/hugozhu/godingtalk v0.0.0-20181111080041-ba62d92f91a5/go.mod h1:7CgsAmE+hL/0bTkTYgbaeppPXxVTjP9xGmhbVM/KC5o=
+github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=
+github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
+gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df h1:n7WqCuqOuCbNr617RXOY0AWRXxgwEyPp2z+p0+hgMuE=
+gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df/go.mod h1:LRQQ+SO6ZHR7tOkpBDuZnXENFzX8qRjMDMyPD6BRkCw=
