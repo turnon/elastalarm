@@ -17,8 +17,9 @@ var (
 )
 
 type ding struct {
-	Chats []string `json:"chats"`
-	Users []string `json:"users"`
+	Chats  []string `json:"chats"`
+	Users  []string `json:"users"`
+	Robots []string `json:"robots"`
 }
 
 func (s *ding) Send(m *Msg) error {
@@ -45,6 +46,15 @@ func (s *ding) Send(m *Msg) error {
 			continue
 		}
 		if err := dingClient.SendAppMessage("", user, msg); err != nil {
+			return errors.WithStack(err)
+		}
+	}
+
+	for _, robot := range s.Robots {
+		if robot == "" {
+			continue
+		}
+		if _, err := dingClient.SendRobotTextMessage(robot, msg); err != nil {
 			return errors.WithStack(err)
 		}
 	}

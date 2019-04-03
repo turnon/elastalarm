@@ -18,7 +18,8 @@ var (
 func dingConfig() []byte {
 	chat := os.Getenv("ESALARM_DING_TEST_CHAT")
 	user := os.Getenv("ESALARM_DING_TEST_USER")
-	return []byte("{\"chats\": [\"" + chat + "\"], \"users\": [\"" + user + "\"]}")
+	robot := os.Getenv("ESALARM_DING_TEST_ROBOT")
+	return []byte("{\"chats\": [\"" + chat + "\"], \"users\": [\"" + user + "\"], \"robots\": [\"" + robot + "\"]}")
 }
 
 func TestDing(t *testing.T) {

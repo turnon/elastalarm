@@ -16,7 +16,7 @@
 * alarms： 消息发送方式，键可选`stdout`、`email`、`ding`之中的一个或多个
 * alarms.stdout： 消息发送到标准输出，值为空对象
 * alarms.email： 消息以邮件方式发送，值格式为`{"to": []}`，数组可含多个收件人
-* alarms.ding： 消息以钉钉方式发送，值格式为`{"chats": [], "users": []}`，数组分别可含多个钉钉群ID和用户ID
+* alarms.ding： 消息以钉钉方式发送，值格式为`{"chats": [], "users": [], "robots": []}`，数组分别可含多个钉钉群ID、用户ID、机器人access_token
 
 # 各paradigm专用键
 
