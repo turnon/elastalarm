@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/hugozhu/godingtalk"
 	"github.com/pkg/errors"
@@ -30,7 +31,7 @@ func (s *ding) Send(m *Msg) error {
 		return errors.WithStack(err)
 	}
 
-	msg := m.join("\n\n")
+	msg := time.Now().Format(time.UnixDate) + "\n\n" + m.join("\n\n")
 
 	for _, chat := range s.Chats {
 		if chat == "" {
