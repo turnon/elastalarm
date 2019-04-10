@@ -12,7 +12,7 @@ var (
 	t     = time.Now().String()
 	title = "title:" + t
 	body  = "body:" + t
-	msg   = notifiers.Msg{Title: &title, Body: &body}
+	msg   = notifiers.Msg{Title: title, Body: body}
 )
 
 func dingConfig() []byte {

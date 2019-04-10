@@ -17,9 +17,9 @@ type Notifier interface {
 }
 
 type Msg struct {
-	Title, Body *string
+	Title, Body string
 }
 
 func (msg *Msg) join(seperate string) string {
-	return *msg.Title + seperate + *msg.Body
+	return msg.Title + seperate + msg.Body
 }

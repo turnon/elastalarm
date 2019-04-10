@@ -77,6 +77,7 @@ func (mon *monitor) _check() error {
 
 	resp, err := mon.httpClient.Do(req)
 	if err != nil {
+		mon.notify(err.Error())
 		return errors.WithStack(err)
 	}
 	defer resp.Body.Close()
@@ -100,13 +101,17 @@ func (mon *monitor) _check() error {
 		return nil
 	}
 
-	msg := notifiers.Msg{Title: &mon.Title, Body: detail}
+	mon.notify(*detail)
+
+	return nil
+}
+
+func (mon *monitor) notify(body string) {
+	msg := notifiers.Msg{Title: mon.Title, Body: body}
 
 	for _, notifier := range mon.notifiers {
 		if err := notifier.Send(&msg); err != nil {
 			log.Printf("%+v", err)
 		}
 	}
-
-	return nil
 }

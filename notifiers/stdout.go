@@ -9,7 +9,7 @@ type stdout struct {
 }
 
 func (s *stdout) Send(m *Msg) error {
-	fmt.Println(*m.Title, "\n\n", *m.Body)
+	fmt.Println(m.Title, "\n\n", m.Body)
 	return nil
 }
 

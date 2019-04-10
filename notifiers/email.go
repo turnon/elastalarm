@@ -22,8 +22,8 @@ func (s *emailSender) Send(m *Msg) error {
 	msg := gomail.NewMessage()
 	msg.SetHeader("From", s.from)
 	msg.SetHeader("To", s.To...)
-	msg.SetHeader("Subject", *m.Title)
-	msg.SetBody("text/plain", *m.Body)
+	msg.SetHeader("Subject", m.Title)
+	msg.SetBody("text/plain", m.Body)
 
 	d := gomail.NewPlainDialer(s.host, s.port, s.from, s.passwd)
 	if s.skipVerify {
