@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -34,7 +35,8 @@ func initMonitors(host string, files []string) {
 }
 
 func newMonitor(host string, cfg *config) *monitor {
-	url := strings.Join([]string{host, cfg.Index, "_search"}, "/")
+	index := url.PathEscape(cfg.Index)
+	url := strings.Join([]string{host, index, "_search"}, "/")
 	return &monitor{
 		config:     cfg,
 		url:        url,

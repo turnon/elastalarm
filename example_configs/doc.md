@@ -4,7 +4,7 @@
 
 * now： 可选，用于测试时固定时间范围为now-interval
 * interval： 监控的周期，以文档的`@timestamp`字段来过滤
-* index： 索引名或通配符
+* index： 符合ES API规范的索引名，可含多个索引、通配符、日期计算表达式
 * paradigm： 统计方式，可填`count`、`percentage`、`spike`之一
 * condition： 因paradigm而异，见“各paradigm专用键”
 * condition.match： 值格式如`{"gt": 0, "lt": 1}`，表示当统计数字在0到1范围内时，发送消息；gt和lt可以相交或不相交
