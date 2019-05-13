@@ -18,6 +18,7 @@ type config struct {
 	Title        string                     `json:"title"`
 	Now          string                     `json:"now"`
 	Interval     string                     `json:"interval"`
+	TimeoutRetry int                        `json:"timeout_retry"`
 	Index        string                     `json:"index"`
 	ParadigmName string                     `json:"paradigm"`
 	Condition    json.RawMessage            `json:"condition"`

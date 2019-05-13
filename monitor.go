@@ -3,6 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -14,9 +15,10 @@ import (
 )
 
 type monitor struct {
-	httpClient *http.Client
-	url        string
-	done       chan bool
+	httpClient     *http.Client
+	url            string
+	done           chan bool
+	timeoutRetried int
 	*config
 }
 
@@ -78,8 +80,7 @@ func (mon *monitor) _check() error {
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := mon.httpClient.Do(req)
-	if err != nil {
-		mon.notify(err.Error())
+	if mon.handleReqErr(err) != nil {
 		return errors.WithStack(err)
 	}
 	defer resp.Body.Close()
@@ -116,4 +117,23 @@ func (mon *monitor) notify(body string) {
 			log.Printf("%+v", err)
 		}
 	}
+}
+
+func (mon *monitor) handleReqErr(err error) error {
+	if err == nil {
+		if mon.timeoutRetried > 0 {
+			mon.timeoutRetried = mon.timeoutRetried - 1
+		}
+		return nil
+	}
+
+	if e, ok := err.(net.Error); ok && e.Timeout() && mon.timeoutRetried < mon.TimeoutRetry {
+		timeoutMsg := "retried (" + string(mon.timeoutRetried) + "/" + string(mon.TimeoutRetry) + ") " + err.Error()
+		mon.notify(timeoutMsg)
+		mon.timeoutRetried = mon.timeoutRetried + 1
+		return nil
+	}
+
+	mon.notify(err.Error())
+	return err
 }
