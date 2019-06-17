@@ -28,7 +28,7 @@ const percentageTemplate = `
 			"must": [
 				{
 					"range": {
-						"@timestamp": {
+						"{{ .TimeField }}": {
 							"gt": "{{ .NowString }}-{{ .Interval }}"
 						}
 					}

@@ -30,7 +30,7 @@ const spikeTemplate = `
 			"must": [
 				{
 					"range": {
-						"@timestamp": {
+						"{{ .TimeField }}": {
 							"gt": "{{ .NowString }}-{{ .Interval }}-{{ .Interval }}"
 						}
 					}
@@ -44,7 +44,7 @@ const spikeTemplate = `
 		"past": {
 			"filter": {
 				"range": {
-					"@timestamp": {
+					"{{ .TimeField }}": {
 						"gt": "{{ .NowString }}-{{ .Interval }}-{{ .Interval }}",
 						"lte": "{{ .NowString }}-{{ .Interval }}"
 					}
@@ -55,7 +55,7 @@ const spikeTemplate = `
 		"recent": {
 			"filter": {
 				"range": {
-					"@timestamp": {
+					"{{ .TimeField }}": {
 						"gt": "{{ .NowString }}-{{ .Interval }}"
 					}
 				}
