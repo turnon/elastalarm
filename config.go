@@ -17,6 +17,7 @@ type config struct {
 	Skip         bool                       `json:"skip"`
 	Title        string                     `json:"title"`
 	Now          string                     `json:"now"`
+	TimeF        string                     `json:"time_field"`
 	Interval     string                     `json:"interval"`
 	TimeoutRetry int                        `json:"timeout_retry"`
 	Index        string                     `json:"index"`
@@ -116,6 +117,13 @@ func (cfg *config) NowString() string {
 		return "now"
 	}
 	return cfg.Now + "||"
+}
+
+func (cfg *config) TimeField() string {
+	if cfg.TimeF == "" || cfg.Now == "@timestamp" {
+		return "@timestamp"
+	}
+	return cfg.TimeF
 }
 
 func (cfg *config) DetailString() string {

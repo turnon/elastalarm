@@ -3,7 +3,8 @@
 ## 查询
 
 * now： 可选，用于测试时固定时间范围为now-interval
-* interval： 监控的周期，以文档的`@timestamp`字段来过滤
+* time_field： 可选，指定监控周期依据文档的哪个时间字段，默认是`@timestamp`
+* interval： 监控的周期
 * index： 符合ES API规范的索引名，可含多个索引、通配符、日期计算表达式
 * paradigm： 统计方式，可填`count`、`percentage`、`spike`之一
 * condition： 因paradigm而异，见“各paradigm专用键”
