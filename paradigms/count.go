@@ -49,6 +49,11 @@ func (c *Count) Found(resp *response.Response) (bool, *string) {
 	return match, &detail
 }
 
+func (c *Count) FoundOnDetail(resp *response.Response) (bool, *string) {
+	detail := ""
+	return false, &detail
+}
+
 func (c *Count) ScopeString() string {
 	return string(c.Scope)
 }

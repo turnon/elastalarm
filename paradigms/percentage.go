@@ -9,10 +9,9 @@ import (
 )
 
 type Percentage struct {
-	Part   json.RawMessage `json:"part"`
-	Whole  json.RawMessage `json:"whole"`
-	Match  `json:"match"`
-	Detail json.RawMessage `json:"detail"`
+	Part  json.RawMessage `json:"part"`
+	Whole json.RawMessage `json:"whole"`
+	Match `json:"match"`
 }
 
 type percentAggs struct {
@@ -76,6 +75,11 @@ func (p *Percentage) Found(resp *response.Response) (bool, *string) {
 	detail := fmt.Sprintf("%d / %d = %s%% %s\n\n%s",
 		aggs.Part.DocCount, total, percent.String(), desc, resp.FlattenAggs())
 	return match, &detail
+}
+
+func (p *Percentage) FoundOnDetail(resp *response.Response) (bool, *string) {
+	detail := ""
+	return false, &detail
 }
 
 func (p *Percentage) PartString() string {

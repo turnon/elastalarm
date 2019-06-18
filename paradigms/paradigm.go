@@ -11,6 +11,8 @@ import (
 type Paradigm interface {
 	Template() string
 	Found(resp *response.Response) (bool, *string)
+	FoundOnDetail(resp *response.Response) (bool, *string)
+	OnDetail() bool
 }
 
 func Names(name string) Paradigm {
@@ -29,6 +31,11 @@ func Names(name string) Paradigm {
 type Match struct {
 	Gt, Lt *float64
 	Not    bool
+	Detail bool
+}
+
+func (m *Match) OnDetail() bool {
+	return m.Detail
 }
 
 func (m *Match) match(v *big.Float) (bool, string) {

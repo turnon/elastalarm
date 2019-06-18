@@ -108,6 +108,11 @@ func (s *Spike) Found(resp *response.Response) (bool, *string) {
 	return match, &detail
 }
 
+func (s *Spike) FoundOnDetail(resp *response.Response) (bool, *string) {
+	detail := ""
+	return false, &detail
+}
+
 func (s *Spike) ScopeString() string {
 	return string(s.Scope)
 }

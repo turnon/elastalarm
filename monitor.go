@@ -99,14 +99,26 @@ func (mon *monitor) _check() error {
 		return errors.WithStack(err)
 	}
 
-	found, detail := mon.Found(respObj)
-	if !found {
-		return nil
-	}
-
-	mon.notify(*detail)
+	mon.handleResp(respObj)
 
 	return nil
+}
+
+func (mon *monitor) handleResp(respObj *response.Response) {
+	var (
+		found  bool
+		detail *string
+	)
+
+	if mon.OnDetail() {
+		found, detail = mon.FoundOnDetail(respObj)
+	} else {
+		found, detail = mon.Found(respObj)
+	}
+
+	if found {
+		mon.notify(*detail)
+	}
 }
 
 func (mon *monitor) notify(body string) {
