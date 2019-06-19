@@ -45,7 +45,12 @@ func (c *Count) Found(resp *response.Response) (bool, *string) {
 		return match, nil
 	}
 
-	detail := fmt.Sprintf("total %d %s\n\n%s", resp.Total(), desc, resp.FlattenAggs())
+	formator := response.GetFormator("")()
+	resp.FlattenDetail(formator)
+	abstract := fmt.Sprintf("total %d %s", resp.Total(), desc)
+	formator.SetAbstract(abstract)
+
+	detail := formator.String()
 	return match, &detail
 }
 
