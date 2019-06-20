@@ -110,8 +110,8 @@ func (mon *monitor) handleResp(respObj *response.Response) {
 		detail *string
 	)
 
-	if mon.OnDetail() {
-		found, detail = mon.FoundOnDetail(respObj)
+	if mon.OnAggs() {
+		found, detail = mon.FoundOnAggs(respObj)
 	} else {
 		found, detail = mon.Found(respObj)
 	}

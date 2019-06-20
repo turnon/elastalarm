@@ -77,7 +77,7 @@ func (p *Percentage) Found(resp *response.Response) (bool, *string) {
 	return match, &detail
 }
 
-func (p *Percentage) FoundOnDetail(resp *response.Response) (bool, *string) {
+func (p *Percentage) FoundOnAggs(resp *response.Response) (bool, *string) {
 	detail := ""
 	return false, &detail
 }

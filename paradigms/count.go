@@ -1,7 +1,6 @@
 package paradigms
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/big"
 
@@ -9,7 +8,7 @@ import (
 )
 
 type Count struct {
-	Scope json.RawMessage `json:"scope"`
+	EsDsl
 	Match `json:"match"`
 }
 
@@ -25,12 +24,12 @@ const countTemplate = `
 						}
 					}
 				},
-				{{ .Paradigm.ScopeString }}
+				{{ .Paradigm.QueryString }}
 			]
 		}
 	},
 	"size": 0,
-	"aggs": {{ .DetailString }}
+	"aggs": {{ .Paradigm.AggsString }}
 }
 `
 
@@ -54,7 +53,7 @@ func (c *Count) Found(resp *response.Response) (bool, *string) {
 	return match, &detail
 }
 
-func (c *Count) FoundOnDetail(resp *response.Response) (bool, *string) {
+func (c *Count) FoundOnAggs(resp *response.Response) (bool, *string) {
 	var (
 		anyMatch bool
 		anyDesc  string
@@ -79,8 +78,4 @@ func (c *Count) FoundOnDetail(resp *response.Response) (bool, *string) {
 	formator.SetAbstract(abstract)
 	detail := formator.String()
 	return anyMatch, &detail
-}
-
-func (c *Count) ScopeString() string {
-	return string(c.Scope)
 }

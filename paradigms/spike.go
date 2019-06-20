@@ -108,7 +108,7 @@ func (s *Spike) Found(resp *response.Response) (bool, *string) {
 	return match, &detail
 }
 
-func (s *Spike) FoundOnDetail(resp *response.Response) (bool, *string) {
+func (s *Spike) FoundOnAggs(resp *response.Response) (bool, *string) {
 	detail := ""
 	return false, &detail
 }

@@ -1,6 +1,7 @@
 package paradigms
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 	"math/big"
@@ -11,8 +12,8 @@ import (
 type Paradigm interface {
 	Template() string
 	Found(resp *response.Response) (bool, *string)
-	FoundOnDetail(resp *response.Response) (bool, *string)
-	OnDetail() bool
+	FoundOnAggs(resp *response.Response) (bool, *string)
+	OnAggs() bool
 }
 
 func Names(name string) Paradigm {
@@ -28,14 +29,33 @@ func Names(name string) Paradigm {
 	}
 }
 
+type EsDsl struct {
+	Query json.RawMessage `json:"query"`
+	Aggs  json.RawMessage `json:"aggs"`
+}
+
+func (dsl *EsDsl) QueryString() string {
+	if str := string(dsl.Query); str != "" {
+		return str
+	}
+	return `{"match_all": {}}`
+}
+
+func (dsl *EsDsl) AggsString() string {
+	if str := string(dsl.Aggs); str != "" {
+		return str
+	}
+	return `{}`
+}
+
 type Match struct {
 	Gt, Lt *float64
 	Not    bool
-	Detail bool
+	Aggs   bool
 }
 
-func (m *Match) OnDetail() bool {
-	return m.Detail
+func (m *Match) OnAggs() bool {
+	return m.Aggs
 }
 
 func (m *Match) match(v *big.Float) (bool, string) {
