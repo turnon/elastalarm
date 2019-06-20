@@ -55,8 +55,30 @@ func (c *Count) Found(resp *response.Response) (bool, *string) {
 }
 
 func (c *Count) FoundOnDetail(resp *response.Response) (bool, *string) {
-	detail := ""
-	return false, &detail
+	var (
+		anyMatch bool
+		anyDesc  string
+	)
+
+	formator := response.GetFormator("")()
+
+	resp.FlatEach(func(arr []interface{}, count int) {
+		total := big.NewFloat(float64(count))
+		if match, desc := c.match(total); match {
+			anyMatch = match
+			anyDesc = desc
+			formator.SetDetail(arr, count)
+		}
+	})
+
+	if !anyMatch {
+		return false, nil
+	}
+
+	abstract := fmt.Sprintf("something %s", anyDesc)
+	formator.SetAbstract(abstract)
+	detail := formator.String()
+	return anyMatch, &detail
 }
 
 func (c *Count) ScopeString() string {
