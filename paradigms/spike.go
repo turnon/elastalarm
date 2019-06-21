@@ -9,8 +9,8 @@ import (
 )
 
 type Spike struct {
-	Scope json.RawMessage `json:"scope"`
-	Ref   int             `json:"reference"`
+	EsDsl
+	Ref   int `json:"reference"`
 	Match `json:"match"`
 }
 
@@ -35,7 +35,7 @@ const spikeTemplate = `
 						}
 					}
 				},
-				{{ .Paradigm.ScopeString }}
+				{{ .Paradigm.QueryString }}
 			]
 		}
 	},
@@ -50,7 +50,7 @@ const spikeTemplate = `
 					}
 				}
 			},
-			"aggs": {{ .DetailString }}
+			"aggs": {{ .Paradigm.AggsString }}
 		},
 		"recent": {
 			"filter": {
@@ -60,7 +60,7 @@ const spikeTemplate = `
 					}
 				}
 			},
-			"aggs": {{ .DetailString }}
+			"aggs": {{ .Paradigm.AggsString }}
 		}
 	}
 }
@@ -108,11 +108,7 @@ func (s *Spike) Found(resp *response.Response) (bool, *string) {
 	return match, &detail
 }
 
-func (s *Spike) FoundOnDetail(resp *response.Response) (bool, *string) {
+func (s *Spike) FoundOnAggs(resp *response.Response) (bool, *string) {
 	detail := ""
 	return false, &detail
-}
-
-func (s *Spike) ScopeString() string {
-	return string(s.Scope)
 }

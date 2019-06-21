@@ -5,7 +5,7 @@
     "index": "logstash-production-*",
     "paradigm": "count",
     "condition": {
-        "scope": {
+        "query": {
             "bool": {
                 "must": [{
                         "term": {
@@ -20,16 +20,16 @@
                 ]
             }
         },
+        "aggs": {
+            "titles": {
+                "terms": {
+                    "field": "title.keyword",
+                    "size": 15
+                }
+            }
+        },
         "match": {
             "gt": 0
-        }
-    },
-    "detail": {
-        "titles": {
-            "terms": {
-                "field": "title.keyword",
-                "size": 15
-            }
         }
     },
     "alarms": {

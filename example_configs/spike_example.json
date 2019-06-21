@@ -5,22 +5,22 @@
     "index": "logstash-nginx-access-*",
     "paradigm": "spike",
     "condition": {
-        "scope": {
+        "query": {
             "match_all": {}
+        },
+        "aggs": {
+            "request_paths": {
+                "terms": {
+                    "field": "requestPath.keyword",
+                    "size": 15
+                }
+            }
         },
         "reference": 18000,
         "match": {
             "not": true,
             "gt": 0.5,
             "lt": 2
-        }
-    },
-    "detail": {
-        "request_paths": {
-            "terms": {
-                "field": "requestPath.keyword",
-                "size": 15
-            }
         }
     },
     "alarms": {
