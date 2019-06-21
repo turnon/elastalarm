@@ -9,9 +9,9 @@ import (
 )
 
 type Percentage struct {
-	Part  json.RawMessage `json:"part"`
-	Whole json.RawMessage `json:"whole"`
-	Match `json:"match"`
+	EsDsl
+	PartialQuery json.RawMessage `json:"partial_query"`
+	Match        `json:"match"`
 }
 
 type percentAggs struct {
@@ -32,15 +32,15 @@ const percentageTemplate = `
 						}
 					}
 				},
-				{{ .Paradigm.WholeString }}
+				{{ .Paradigm.QueryString }}
 			]
 		}
 	},
 	"size": 0,
 	"aggs": {
 		"part": {
-			"filter": {{ .Paradigm.PartString }},
-			"aggs": {{ .DetailString }}
+			"filter": {{ .Paradigm.PartialQueryString }},
+			"aggs": {{ .Paradigm.AggsString }}
 		}
 	}
 }
@@ -82,10 +82,6 @@ func (p *Percentage) FoundOnAggs(resp *response.Response) (bool, *string) {
 	return false, &detail
 }
 
-func (p *Percentage) PartString() string {
-	return string(p.Part)
-}
-
-func (p *Percentage) WholeString() string {
-	return string(p.Whole)
+func (p *Percentage) PartialQueryString() string {
+	return string(p.PartialQuery)
 }
