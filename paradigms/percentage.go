@@ -46,9 +46,34 @@ const percentageTemplate = `
 }
 `
 
+const percentageOnAggsTemplate = `
+{
+	"query": {
+		"bool": {
+			"must": [
+				{
+					"range": {
+						"{{ .TimeField }}": {
+							"gt": "{{ .NowString }}-{{ .Interval }}"
+						}
+					}
+				},
+				{{ .Paradigm.QueryString }}
+			]
+		}
+	},
+	"size": 0,
+	"aggs": {{ .Paradigm.AggsString }}
+
+}
+`
+
 var hundred = big.NewFloat(100)
 
 func (p *Percentage) Template() string {
+	if p.OnAggs() {
+		return percentageOnAggsTemplate
+	}
 	return percentageTemplate
 }
 
@@ -57,29 +82,64 @@ func (p *Percentage) Found(resp *response.Response) (bool, *string) {
 	if total == 0 {
 		return false, nil
 	}
-	whole := big.NewFloat(float64(total))
 
 	aggs := &percentAggs{}
 	json.Unmarshal(resp.Aggregations, aggs)
-	part := big.NewFloat(float64(aggs.Part.DocCount))
+	part := aggs.Part.DocCount
 
-	var quo, percent big.Float
-	quo.Quo(part, whole)
-	percent.Mul(&quo, hundred)
-	match, desc := p.match(&percent)
+	percent := calcPercent(part, total)
+	match, desc := p.match(percent)
 
 	if !match {
 		return match, nil
 	}
 
 	detail := fmt.Sprintf("%d / %d = %s%% %s\n\n%s",
-		aggs.Part.DocCount, total, percent.String(), desc, resp.FlattenAggs())
+		part, total, percent.String(), desc, resp.FlattenAggs())
 	return match, &detail
 }
 
 func (p *Percentage) FoundOnAggs(resp *response.Response) (bool, *string) {
-	detail := ""
-	return false, &detail
+	total := resp.Total()
+	if total == 0 {
+		return false, nil
+	}
+
+	var (
+		anyMatch bool
+		anyDesc  string
+	)
+
+	formator := response.GetFormator("")()
+
+	resp.FlatEach(func(arr []interface{}, part int) {
+		percent := calcPercent(part, total)
+		if match, desc := p.match(percent); match {
+			anyMatch = match
+			anyDesc = desc
+			formator.SetDetail(arr, part)
+		}
+	})
+
+	if !anyMatch {
+		return false, nil
+	}
+
+	abstract := fmt.Sprintf("something %s", anyDesc)
+	formator.SetAbstract(abstract)
+	detail := formator.String()
+	return anyMatch, &detail
+}
+
+func calcPercent(numerator, denominator int) *big.Float {
+	n := big.NewFloat(float64(numerator))
+	d := big.NewFloat(float64(denominator))
+
+	var quo, percent big.Float
+	quo.Quo(n, d)
+	percent.Mul(&quo, hundred)
+
+	return &percent
 }
 
 func (p *Percentage) PartialQueryString() string {
