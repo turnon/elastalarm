@@ -92,12 +92,8 @@ func (s *Spike) Found(resp *response.Response) (bool, *string) {
 		return false, nil
 	}
 
-	past := big.NewFloat(float64(pastCount))
-	recent := big.NewFloat(float64(aggs.Recent.DocCount))
-
-	var times big.Float
-	times.Quo(recent, past)
-	match, desc := s.match(&times)
+	times := calcTimes(pastCount, aggs.Recent.DocCount)
+	match, desc := s.match(times)
 
 	if !match {
 		return match, nil
@@ -109,6 +105,80 @@ func (s *Spike) Found(resp *response.Response) (bool, *string) {
 }
 
 func (s *Spike) FoundOnAggs(resp *response.Response) (bool, *string) {
-	detail := ""
-	return false, &detail
+	var (
+		anyMatch bool
+		anyDesc  string
+	)
+
+	formator := response.GetFormator("")()
+	past := make(map[string]int)
+	pastRawKeys := make(map[string][]interface{})
+
+	resp.FlatEach(func(arr []interface{}, count int) {
+		from := fmt.Sprint(arr[0])
+		keys := arr[1:]
+		keystr := fmt.Sprint(keys)
+
+		// cache past count
+		if from == "past" {
+			past[keystr] = count
+			pastRawKeys[keystr] = keys
+			return
+		}
+
+		// calculate recent/past and remove key in both recent and past
+		pastCount := past[keystr]
+		delete(past, keystr)
+		// fmt.Println(past, "-------")
+		if pastCount == 0 {
+			if s.Ref == 0 {
+				return
+			}
+			pastCount = s.Ref
+		}
+
+		times := calcTimes(pastCount, count)
+		if match, desc := s.match(times); match {
+			anyMatch = match
+			anyDesc = desc
+			formator.SetDetail(keys, count)
+		}
+	})
+
+	// calculate 0/past if past remain
+	var recentNotFound int
+	if s.Ref == 0 {
+		recentNotFound = 0
+	} else {
+		recentNotFound = s.Ref
+	}
+
+	recentNotFoundFloat := big.NewFloat(float64(recentNotFound))
+	if match, desc := s.match(recentNotFoundFloat); match {
+		anyMatch = match
+		anyDesc = desc
+		for key, count := range past {
+			keys := pastRawKeys[key]
+			formator.SetDetail(keys, count)
+		}
+	}
+
+	if !anyMatch {
+		return false, nil
+	}
+
+	abstract := fmt.Sprintf("something %s", anyDesc)
+	formator.SetAbstract(abstract)
+	detail := formator.String()
+	return anyMatch, &detail
+}
+
+func calcTimes(past, recent int) *big.Float {
+	pastF := big.NewFloat(float64(past))
+	recentF := big.NewFloat(float64(recent))
+
+	var times big.Float
+	times.Quo(pastF, recentF)
+
+	return &times
 }
