@@ -122,7 +122,7 @@ func (mon *monitor) handleResp(respObj *response.Response) {
 }
 
 func (mon *monitor) notify(result *response.Result) {
-	msg := notifiers.Msg{Title: mon.Title, Body: result.Stringify()}
+	msg := notifiers.Msg{mon.Title, result}
 
 	for _, notifier := range mon.notifiers {
 		if err := notifier.Send(&msg); err != nil {
@@ -143,13 +143,13 @@ func (mon *monitor) handleReqErr(err error) error {
 
 	if e, ok := err.(net.Error); ok && e.Timeout() && mon.timeoutRetried < mon.TimeoutRetry {
 		timeoutMsg := "retried (" + string(mon.timeoutRetried) + "/" + string(mon.TimeoutRetry) + ") " + err.Error()
-		result.SetAbstract(timeoutMsg)
+		result.Abstract = timeoutMsg
 		mon.notify(result)
 		mon.timeoutRetried = mon.timeoutRetried + 1
 		return nil
 	}
 
-	result.SetAbstract(err.Error())
+	result.Abstract = err.Error()
 	mon.notify(result)
 	return err
 }

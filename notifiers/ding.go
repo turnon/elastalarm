@@ -31,7 +31,7 @@ func (s *ding) Send(m *Msg) error {
 		return errors.WithStack(err)
 	}
 
-	msg := time.Now().Format(time.UnixDate) + "\n\n" + m.join("\n\n")
+	msg := time.Now().Format(time.UnixDate) + "\n\n" + m.TextWithTitle()
 
 	for _, chat := range s.Chats {
 		if chat == "" {

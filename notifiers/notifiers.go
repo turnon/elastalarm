@@ -2,6 +2,9 @@ package notifiers
 
 import (
 	"encoding/json"
+	"fmt"
+
+	"github.com/turnon/elastalarm/response"
 )
 
 var (
@@ -17,9 +20,10 @@ type Notifier interface {
 }
 
 type Msg struct {
-	Title, Body string
+	Title string
+	*response.Result
 }
 
-func (msg *Msg) join(seperate string) string {
-	return msg.Title + seperate + msg.Body
+func (msg *Msg) TextWithTitle() string {
+	return fmt.Sprintf("%s\n\n%s", msg.Title, msg.Text())
 }

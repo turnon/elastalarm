@@ -105,7 +105,7 @@ func (s *Spike) Found(resp *response.Response) (bool, *response.Result) {
 	})
 	abstract := fmt.Sprintf("%d / %d = %s %s. actual past doc_ount is %d",
 		aggs.Recent.DocCount, pastCount, times.String(), desc, aggs.Recent.DocCount)
-	result.SetAbstract(abstract)
+	result.Abstract = abstract
 
 	return match, result
 }
@@ -178,7 +178,7 @@ func (s *Spike) FoundOnAggs(resp *response.Response) (bool, *response.Result) {
 	}
 
 	abstract := fmt.Sprintf("something %s", anyDesc)
-	result.SetAbstract(abstract)
+	result.Abstract = abstract
 
 	return anyMatch, result
 }

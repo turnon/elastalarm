@@ -8,45 +8,15 @@ import (
 )
 
 type formator interface {
-	SetDetail(arr []interface{}, count int, calculated *big.Float)
-	SetAbstract(abstract string)
+	SetDetail([]interface{}, int, *big.Float)
+	SetAbstract(string)
 	String() string
 }
 
 func GetFormator(name string) func() formator {
 	return func() formator {
-		if name == "json" {
-			return &JSON{}
-		}
-		return &PlainText{}
+		return &JSON{}
 	}
-}
-
-type PlainText struct {
-	body     strings.Builder
-	abstract string
-}
-
-func (t *PlainText) SetDetail(arr []interface{}, count int, calculated *big.Float) {
-	t.body.WriteString(fmt.Sprint(arr))
-	t.body.WriteString(" ")
-	if calculated != nil {
-		t.body.WriteString(calculated.String())
-		t.body.WriteString(" (")
-		t.body.WriteString(strconv.Itoa(count))
-		t.body.WriteString(")")
-	} else {
-		t.body.WriteString(strconv.Itoa(count))
-	}
-	t.body.WriteString("\n")
-}
-
-func (t *PlainText) SetAbstract(abstract string) {
-	t.abstract = abstract
-}
-
-func (t *PlainText) String() string {
-	return fmt.Sprintf("%s\n\n%s", t.abstract, t.body.String())
 }
 
 type JSON struct {

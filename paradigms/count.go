@@ -49,7 +49,7 @@ func (c *Count) Found(resp *response.Response) (bool, *response.Result) {
 		result.SetDetail(arr, count, nil)
 	})
 	abstract := fmt.Sprintf("total %d %s", resp.Total(), desc)
-	result.SetAbstract(abstract)
+	result.Abstract = abstract
 
 	return match, result
 }
@@ -76,7 +76,7 @@ func (c *Count) FoundOnAggs(resp *response.Response) (bool, *response.Result) {
 	}
 
 	abstract := fmt.Sprintf("something %s", anyDesc)
-	result.SetAbstract(abstract)
+	result.Abstract = abstract
 
 	return anyMatch, result
 }

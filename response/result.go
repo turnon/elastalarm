@@ -1,9 +1,14 @@
 package response
 
-import "math/big"
+import (
+	"fmt"
+	"math/big"
+	"strconv"
+	"strings"
+)
 
 type Result struct {
-	abstract string
+	Abstract string
 	details  []*detail
 }
 
@@ -18,15 +23,26 @@ func (rs *Result) SetDetail(arr []interface{}, raw int, calculated *big.Float) {
 	rs.details = append(rs.details, d)
 }
 
-func (rs *Result) SetAbstract(abstract string) {
-	rs.abstract = abstract
+func (rs *Result) Text() string {
+	return fmt.Sprintf("%s\n\n%s", rs.Abstract, rs.TextDetails())
 }
 
-func (rs *Result) Stringify() string {
-	f := GetFormator("")()
+func (rs *Result) TextDetails() string {
+	var str strings.Builder
+
 	for _, d := range rs.details {
-		f.SetDetail(d.arr, d.raw, d.calculated)
+		str.WriteString(fmt.Sprint(d.arr))
+		str.WriteString(" ")
+		if d.calculated != nil {
+			str.WriteString(d.calculated.String())
+			str.WriteString(" (")
+			str.WriteString(strconv.Itoa(d.raw))
+			str.WriteString(")")
+		} else {
+			str.WriteString(strconv.Itoa(d.raw))
+		}
+		str.WriteString("\n")
 	}
-	f.SetAbstract(rs.abstract)
-	return f.String()
+
+	return str.String()
 }

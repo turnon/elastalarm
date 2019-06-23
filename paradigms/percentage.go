@@ -99,7 +99,7 @@ func (p *Percentage) Found(resp *response.Response) (bool, *response.Result) {
 		result.SetDetail(arr, count, nil)
 	})
 	abstract := fmt.Sprintf("%d / %d = %s%% %s", part, total, percent.String(), desc)
-	result.SetAbstract(abstract)
+	result.Abstract = abstract
 
 	return match, result
 }
@@ -131,7 +131,7 @@ func (p *Percentage) FoundOnAggs(resp *response.Response) (bool, *response.Resul
 	}
 
 	abstract := fmt.Sprintf("something %s", anyDesc)
-	result.SetAbstract(abstract)
+	result.Abstract = abstract
 	return anyMatch, result
 }
 
