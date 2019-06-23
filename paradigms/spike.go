@@ -83,7 +83,7 @@ func (s *Spike) pastCount(aggs *spikeAggs) int {
 	return 0
 }
 
-func (s *Spike) Found(resp *response.Response) (bool, *string) {
+func (s *Spike) Found(resp *response.Response) (bool, *response.Result) {
 	aggs := &spikeAggs{}
 	json.Unmarshal(resp.Aggregations, aggs)
 
@@ -99,18 +99,24 @@ func (s *Spike) Found(resp *response.Response) (bool, *string) {
 		return match, nil
 	}
 
-	detail := fmt.Sprintf("%d / %d = %s %s. actual past doc_ount is %d \n\n%s",
-		aggs.Recent.DocCount, pastCount, times.String(), desc, aggs.Past.DocCount, resp.FlattenAggs())
-	return match, &detail
+	result := &response.Result{}
+	resp.FlatEach(func(arr []interface{}, count int) {
+		result.SetDetail(arr, count, count)
+	})
+	abstract := fmt.Sprintf("%d / %d = %s %s. actual past doc_ount is %d",
+		aggs.Recent.DocCount, pastCount, times.String(), desc, aggs.Recent.DocCount)
+	result.SetAbstract(abstract)
+
+	return match, result
 }
 
-func (s *Spike) FoundOnAggs(resp *response.Response) (bool, *string) {
+func (s *Spike) FoundOnAggs(resp *response.Response) (bool, *response.Result) {
 	var (
 		anyMatch bool
 		anyDesc  string
 	)
 
-	formator := response.GetFormator("")()
+	result := &response.Result{}
 	past := make(map[string]int)
 	pastRawKeys := make(map[string][]interface{})
 
@@ -129,7 +135,6 @@ func (s *Spike) FoundOnAggs(resp *response.Response) (bool, *string) {
 		// calculate recent/past and remove key in both recent and past
 		pastCount := past[keystr]
 		delete(past, keystr)
-		// fmt.Println(past, "-------")
 		if pastCount == 0 {
 			if s.Ref == 0 {
 				return
@@ -141,7 +146,7 @@ func (s *Spike) FoundOnAggs(resp *response.Response) (bool, *string) {
 		if match, desc := s.match(times); match {
 			anyMatch = match
 			anyDesc = desc
-			formator.SetDetail(keys, count)
+			result.SetDetail(keys, count, count)
 		}
 	})
 
@@ -159,7 +164,7 @@ func (s *Spike) FoundOnAggs(resp *response.Response) (bool, *string) {
 		anyDesc = desc
 		for key, count := range past {
 			keys := pastRawKeys[key]
-			formator.SetDetail(keys, count)
+			result.SetDetail(keys, count, count)
 		}
 	}
 
@@ -168,9 +173,9 @@ func (s *Spike) FoundOnAggs(resp *response.Response) (bool, *string) {
 	}
 
 	abstract := fmt.Sprintf("something %s", anyDesc)
-	formator.SetAbstract(abstract)
-	detail := formator.String()
-	return anyMatch, &detail
+	result.SetAbstract(abstract)
+
+	return anyMatch, result
 }
 
 func calcTimes(past, recent int) *big.Float {

@@ -107,17 +107,17 @@ func (mon *monitor) _check() error {
 func (mon *monitor) handleResp(respObj *response.Response) {
 	var (
 		found  bool
-		detail *string
+		result *response.Result
 	)
 
 	if mon.OnAggs() {
-		found, detail = mon.FoundOnAggs(respObj)
+		found, result = mon.FoundOnAggs(respObj)
 	} else {
-		found, detail = mon.Found(respObj)
+		found, result = mon.Found(respObj)
 	}
 
 	if found {
-		mon.notify(*detail)
+		mon.notify(result.Stringify())
 	}
 }
 
