@@ -2,12 +2,13 @@ package response
 
 import (
 	"fmt"
+	"math/big"
 	"strconv"
 	"strings"
 )
 
 type formator interface {
-	SetDetail(arr []interface{}, count int)
+	SetDetail(arr []interface{}, count int, calculated *big.Float)
 	SetAbstract(abstract string)
 	String() string
 }
@@ -26,10 +27,17 @@ type PlainText struct {
 	abstract string
 }
 
-func (t *PlainText) SetDetail(arr []interface{}, count int) {
+func (t *PlainText) SetDetail(arr []interface{}, count int, calculated *big.Float) {
 	t.body.WriteString(fmt.Sprint(arr))
 	t.body.WriteString(" ")
-	t.body.WriteString(strconv.Itoa(count))
+	if calculated != nil {
+		t.body.WriteString(calculated.String())
+		t.body.WriteString(" (")
+		t.body.WriteString(strconv.Itoa(count))
+		t.body.WriteString(")")
+	} else {
+		t.body.WriteString(strconv.Itoa(count))
+	}
 	t.body.WriteString("\n")
 }
 
@@ -46,7 +54,7 @@ type JSON struct {
 	abstract    string
 }
 
-func (j *JSON) SetDetail(arr []interface{}, count int) {
+func (j *JSON) SetDetail(arr []interface{}, count int, calculated *big.Float) {
 	keys := []string{}
 	for _, e := range arr {
 		keys = append(keys, fmt.Sprint(e))

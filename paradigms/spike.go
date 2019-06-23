@@ -101,7 +101,7 @@ func (s *Spike) Found(resp *response.Response) (bool, *response.Result) {
 
 	result := &response.Result{}
 	resp.FlatEach(func(arr []interface{}, count int) {
-		result.SetDetail(arr, count, count)
+		result.SetDetail(arr, count, nil)
 	})
 	abstract := fmt.Sprintf("%d / %d = %s %s. actual past doc_ount is %d",
 		aggs.Recent.DocCount, pastCount, times.String(), desc, aggs.Recent.DocCount)
@@ -146,7 +146,7 @@ func (s *Spike) FoundOnAggs(resp *response.Response) (bool, *response.Result) {
 		if match, desc := s.match(times); match {
 			anyMatch = match
 			anyDesc = desc
-			result.SetDetail(keys, count, count)
+			result.SetDetail(keys, count, times)
 		}
 	})
 
@@ -156,9 +156,9 @@ func (s *Spike) FoundOnAggs(resp *response.Response) (bool, *response.Result) {
 		if match, desc := s.match(recentNotFound); match {
 			anyMatch = match
 			anyDesc = desc
-			for key, count := range past {
+			for key, _ := range past {
 				keys := pastRawKeys[key]
-				result.SetDetail(keys, count, count)
+				result.SetDetail(keys, 0, recentNotFound)
 			}
 		}
 	} else {
@@ -168,7 +168,7 @@ func (s *Spike) FoundOnAggs(resp *response.Response) (bool, *response.Result) {
 				anyMatch = match
 				anyDesc = desc
 				keys := pastRawKeys[key]
-				result.SetDetail(keys, count, count)
+				result.SetDetail(keys, s.Ref, times)
 			}
 		}
 	}

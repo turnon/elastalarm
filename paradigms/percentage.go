@@ -96,7 +96,7 @@ func (p *Percentage) Found(resp *response.Response) (bool, *response.Result) {
 
 	result := &response.Result{}
 	resp.FlatEach(func(arr []interface{}, count int) {
-		result.SetDetail(arr, count, count)
+		result.SetDetail(arr, count, nil)
 	})
 	abstract := fmt.Sprintf("%d / %d = %s%% %s", part, total, percent.String(), desc)
 	result.SetAbstract(abstract)
@@ -122,7 +122,7 @@ func (p *Percentage) FoundOnAggs(resp *response.Response) (bool, *response.Resul
 		if match, desc := p.match(percent); match {
 			anyMatch = match
 			anyDesc = desc
-			result.SetDetail(arr, part, part)
+			result.SetDetail(arr, part, percent)
 		}
 	})
 

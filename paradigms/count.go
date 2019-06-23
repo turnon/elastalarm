@@ -46,7 +46,7 @@ func (c *Count) Found(resp *response.Response) (bool, *response.Result) {
 
 	result := &response.Result{}
 	resp.FlatEach(func(arr []interface{}, count int) {
-		result.SetDetail(arr, count, count)
+		result.SetDetail(arr, count, nil)
 	})
 	abstract := fmt.Sprintf("total %d %s", resp.Total(), desc)
 	result.SetAbstract(abstract)
@@ -67,7 +67,7 @@ func (c *Count) FoundOnAggs(resp *response.Response) (bool, *response.Result) {
 		if match, desc := c.match(total); match {
 			anyMatch = match
 			anyDesc = desc
-			result.SetDetail(arr, count, count)
+			result.SetDetail(arr, count, nil)
 		}
 	})
 
