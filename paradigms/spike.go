@@ -151,20 +151,25 @@ func (s *Spike) FoundOnAggs(resp *response.Response) (bool, *response.Result) {
 	})
 
 	// calculate 0/past if past remain
-	var recentNotFound int
 	if s.Ref == 0 {
-		recentNotFound = 0
+		recentNotFound := big.NewFloat(float64(0))
+		if match, desc := s.match(recentNotFound); match {
+			anyMatch = match
+			anyDesc = desc
+			for key, count := range past {
+				keys := pastRawKeys[key]
+				result.SetDetail(keys, count, count)
+			}
+		}
 	} else {
-		recentNotFound = s.Ref
-	}
-
-	recentNotFoundFloat := big.NewFloat(float64(recentNotFound))
-	if match, desc := s.match(recentNotFoundFloat); match {
-		anyMatch = match
-		anyDesc = desc
 		for key, count := range past {
-			keys := pastRawKeys[key]
-			result.SetDetail(keys, count, count)
+			times := calcTimes(count, s.Ref)
+			if match, desc := s.match(times); match {
+				anyMatch = match
+				anyDesc = desc
+				keys := pastRawKeys[key]
+				result.SetDetail(keys, count, count)
+			}
 		}
 	}
 
@@ -183,7 +188,7 @@ func calcTimes(past, recent int) *big.Float {
 	recentF := big.NewFloat(float64(recent))
 
 	var times big.Float
-	times.Quo(pastF, recentF)
+	times.Quo(recentF, pastF)
 
 	return &times
 }
