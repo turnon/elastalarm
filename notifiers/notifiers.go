@@ -9,9 +9,10 @@ import (
 
 var (
 	Generators = map[string](func(cfg json.RawMessage) (Notifier, error)){
-		"stdout": newStdout,
-		"email":  newEmail,
-		"ding":   newDing,
+		"stdout":   newStdout,
+		"email":    newEmail,
+		"ding":     newDing,
+		"web_hook": newWebHook,
 	}
 )
 
