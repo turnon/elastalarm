@@ -14,18 +14,17 @@ import (
 )
 
 type config struct {
-	Skip         bool            `json:"skip"`
-	Title        string          `json:"title"`
-	Now          string          `json:"now"`
-	TimeF        string          `json:"time_field"`
-	Interval     string          `json:"interval"`
-	TimeoutRetry int             `json:"timeout_retry"`
-	Index        string          `json:"index"`
-	ParadigmName string          `json:"paradigm"`
-	Condition    json.RawMessage `json:"condition"`
-	// Detail       json.RawMessage            `json:"detail"`
-	Alarms    map[string]json.RawMessage `json:"alarms"`
-	notifiers []notifiers.Notifier
+	Skip         bool                       `json:"skip"`
+	Title        string                     `json:"title"`
+	Now          string                     `json:"now"`
+	TimeF        string                     `json:"time_field"`
+	Interval     string                     `json:"interval"`
+	TimeoutRetry int                        `json:"timeout_retry"`
+	Index        string                     `json:"index"`
+	ParadigmName string                     `json:"paradigm"`
+	Condition    json.RawMessage            `json:"condition"`
+	Alarms       map[string]json.RawMessage `json:"alarms"`
+	notifiers    []notifiers.Notifier
 	paradigms.Paradigm
 	_reqBody *string
 	_ticker  *time.Ticker
