@@ -1,9 +1,9 @@
 package notifiers
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -18,7 +18,12 @@ type webHook struct {
 const timeOut = 3 * time.Second
 
 func (wh *webHook) Send(m *Msg) error {
-	body := strings.NewReader(m.TextWithTitle())
+	data, err := m.JSON()
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	body := bytes.NewReader(data)
 	req, err := http.NewRequest(wh.Method, wh.Url, body)
 	if err != nil {
 		return errors.WithStack(err)

@@ -21,10 +21,14 @@ type Notifier interface {
 }
 
 type Msg struct {
-	Title string
+	Title string `json:"title"`
 	*response.Result
 }
 
 func (msg *Msg) TextWithTitle() string {
 	return fmt.Sprintf("%s\n\n%s", msg.Title, msg.Text())
+}
+
+func (msg *Msg) JSON() ([]byte, error) {
+	return json.Marshal(msg)
 }

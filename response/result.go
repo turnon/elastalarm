@@ -1,6 +1,7 @@
 package response
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"strconv"
@@ -8,19 +9,19 @@ import (
 )
 
 type Result struct {
-	Abstract string
-	details  []*detail
+	Abstract string    `json:"abstract"`
+	Details  []*detail `json:"details"`
 }
 
 type detail struct {
-	arr        []interface{}
-	raw        int
-	calculated *big.Float
+	Terms      []interface{} `json:"terms"`
+	Raw        int           `json:"count"`
+	Calculated *big.Float    `json:"calculated"`
 }
 
 func (rs *Result) SetDetail(arr []interface{}, raw int, calculated *big.Float) {
 	d := &detail{arr, raw, calculated}
-	rs.details = append(rs.details, d)
+	rs.Details = append(rs.Details, d)
 }
 
 func (rs *Result) Text() string {
@@ -30,19 +31,25 @@ func (rs *Result) Text() string {
 func (rs *Result) TextDetails() string {
 	var str strings.Builder
 
-	for _, d := range rs.details {
-		str.WriteString(fmt.Sprint(d.arr))
+	for _, d := range rs.Details {
+		str.WriteString(fmt.Sprint(d.termsStr()))
 		str.WriteString(" ")
-		if d.calculated != nil {
-			str.WriteString(d.calculated.String())
+		RawStr := strconv.Itoa(d.Raw)
+		if d.Calculated != nil {
+			str.WriteString(d.Calculated.String())
 			str.WriteString(" (")
-			str.WriteString(strconv.Itoa(d.raw))
+			str.WriteString(RawStr)
 			str.WriteString(")")
 		} else {
-			str.WriteString(strconv.Itoa(d.raw))
+			str.WriteString(RawStr)
 		}
 		str.WriteString("\n")
 	}
 
 	return str.String()
+}
+
+func (d *detail) termsStr() string {
+	str, _ := json.Marshal(d.Terms)
+	return string(str)
 }
