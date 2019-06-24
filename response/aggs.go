@@ -37,7 +37,7 @@ func (a *singleAgg) buckets() []*bucket {
 const wrongKey = "wrong_key"
 
 type bucket struct {
-	key             string
+	key             interface{}
 	docCount        int
 	nameRawAggPairs map[string](*json.RawMessage)
 	nameAggPairs    map[singleAggName](*singleAgg)
@@ -49,7 +49,7 @@ func (b *bucket) unmarshal(bytes []byte) {
 
 	for key, rawMsg := range nameRawAggPairs {
 		if key == "key" {
-			b.key = string(*rawMsg)
+			b.key = *rawMsg
 		} else if key == "doc_count" {
 			count, _ := strconv.Atoi(string(*rawMsg))
 			b.docCount = count

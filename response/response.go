@@ -49,11 +49,11 @@ func (resp *Response) FlattenAggs() string {
 	return sb.String()
 }
 
-func (resp *Response) FlattenDetail(fm formator) {
-	resp.FlatEach(func(arr []interface{}, count int) {
-		fm.SetDetail(arr, count)
-	})
-}
+// func (resp *Response) FlattenDetail(fm formator) {
+// 	resp.FlatEach(func(arr []interface{}, count int) {
+// 		fm.SetDetail(arr, count)
+// 	})
+// }
 
 func (resp *Response) FlatEach(f func([]interface{}, int)) {
 	var b bucket

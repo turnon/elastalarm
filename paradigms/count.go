@@ -37,36 +37,37 @@ func (c *Count) Template() string {
 	return countTemplate
 }
 
-func (c *Count) Found(resp *response.Response) (bool, *string) {
+func (c *Count) Found(resp *response.Response) (bool, *response.Result) {
 	total := big.NewFloat(float64(resp.Total()))
 	match, desc := c.match(total)
 	if !match {
 		return match, nil
 	}
 
-	formator := response.GetFormator("")()
-	resp.FlattenDetail(formator)
+	result := &response.Result{}
+	resp.FlatEach(func(arr []interface{}, count int) {
+		result.SetDetail(arr, count, nil)
+	})
 	abstract := fmt.Sprintf("total %d %s", resp.Total(), desc)
-	formator.SetAbstract(abstract)
+	result.Abstract = abstract
 
-	detail := formator.String()
-	return match, &detail
+	return match, result
 }
 
-func (c *Count) FoundOnAggs(resp *response.Response) (bool, *string) {
+func (c *Count) FoundOnAggs(resp *response.Response) (bool, *response.Result) {
 	var (
 		anyMatch bool
 		anyDesc  string
 	)
 
-	formator := response.GetFormator("")()
+	result := &response.Result{}
 
 	resp.FlatEach(func(arr []interface{}, count int) {
 		total := big.NewFloat(float64(count))
 		if match, desc := c.match(total); match {
 			anyMatch = match
 			anyDesc = desc
-			formator.SetDetail(arr, count)
+			result.SetDetail(arr, count, nil)
 		}
 	})
 
@@ -75,7 +76,7 @@ func (c *Count) FoundOnAggs(resp *response.Response) (bool, *string) {
 	}
 
 	abstract := fmt.Sprintf("something %s", anyDesc)
-	formator.SetAbstract(abstract)
-	detail := formator.String()
-	return anyMatch, &detail
+	result.Abstract = abstract
+
+	return anyMatch, result
 }

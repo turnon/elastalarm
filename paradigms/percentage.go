@@ -77,7 +77,7 @@ func (p *Percentage) Template() string {
 	return percentageTemplate
 }
 
-func (p *Percentage) Found(resp *response.Response) (bool, *string) {
+func (p *Percentage) Found(resp *response.Response) (bool, *response.Result) {
 	total := resp.Total()
 	if total == 0 {
 		return false, nil
@@ -94,12 +94,17 @@ func (p *Percentage) Found(resp *response.Response) (bool, *string) {
 		return match, nil
 	}
 
-	detail := fmt.Sprintf("%d / %d = %s%% %s\n\n%s",
-		part, total, percent.String(), desc, resp.FlattenAggs())
-	return match, &detail
+	result := &response.Result{}
+	resp.FlatEach(func(arr []interface{}, count int) {
+		result.SetDetail(arr, count, nil)
+	})
+	abstract := fmt.Sprintf("%d / %d = %s%% %s", part, total, percent.String(), desc)
+	result.Abstract = abstract
+
+	return match, result
 }
 
-func (p *Percentage) FoundOnAggs(resp *response.Response) (bool, *string) {
+func (p *Percentage) FoundOnAggs(resp *response.Response) (bool, *response.Result) {
 	total := resp.Total()
 	if total == 0 {
 		return false, nil
@@ -110,14 +115,14 @@ func (p *Percentage) FoundOnAggs(resp *response.Response) (bool, *string) {
 		anyDesc  string
 	)
 
-	formator := response.GetFormator("")()
+	result := &response.Result{}
 
 	resp.FlatEach(func(arr []interface{}, part int) {
 		percent := calcPercent(part, total)
 		if match, desc := p.match(percent); match {
 			anyMatch = match
 			anyDesc = desc
-			formator.SetDetail(arr, part)
+			result.SetDetail(arr, part, percent)
 		}
 	})
 
@@ -126,9 +131,8 @@ func (p *Percentage) FoundOnAggs(resp *response.Response) (bool, *string) {
 	}
 
 	abstract := fmt.Sprintf("something %s", anyDesc)
-	formator.SetAbstract(abstract)
-	detail := formator.String()
-	return anyMatch, &detail
+	result.Abstract = abstract
+	return anyMatch, result
 }
 
 func calcPercent(numerator, denominator int) *big.Float {

@@ -6,8 +6,8 @@ import (
 
 type Paradigm interface {
 	Template() string
-	Found(resp *response.Response) (bool, *string)
-	FoundOnAggs(resp *response.Response) (bool, *string)
+	Found(resp *response.Response) (bool, *response.Result)
+	FoundOnAggs(resp *response.Response) (bool, *response.Result)
 	OnAggs() bool
 }
 
