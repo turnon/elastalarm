@@ -37,13 +37,9 @@ func (resp *Response) Aggs() string {
 }
 
 func (resp *Response) FlattenAggs() string {
-	var (
-		b  bucket
-		sb strings.Builder
-	)
-	b.unmarshal(resp.Aggregations)
+	var sb strings.Builder
 
-	b.flatten(func(arr []interface{}, count int) {
+	resp.FlatEach(func(arr []interface{}, count int) {
 		sb.WriteString(fmt.Sprint(arr))
 		sb.WriteString(" ")
 		sb.WriteString(strconv.Itoa(count))
@@ -51,4 +47,10 @@ func (resp *Response) FlattenAggs() string {
 	})
 
 	return sb.String()
+}
+
+func (resp *Response) FlatEach(f func([]interface{}, int)) {
+	var b bucket
+	b.unmarshal(resp.Aggregations)
+	b.flatten(f)
 }

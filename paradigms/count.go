@@ -1,7 +1,6 @@
 package paradigms
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/big"
 
@@ -9,7 +8,7 @@ import (
 )
 
 type Count struct {
-	Scope json.RawMessage `json:"scope"`
+	EsDsl
 	Match `json:"match"`
 }
 
@@ -25,12 +24,12 @@ const countTemplate = `
 						}
 					}
 				},
-				{{ .Paradigm.ScopeString }}
+				{{ .Paradigm.QueryString }}
 			]
 		}
 	},
 	"size": 0,
-	"aggs": {{ .DetailString }}
+	"aggs": {{ .Paradigm.AggsString }}
 }
 `
 
@@ -38,17 +37,46 @@ func (c *Count) Template() string {
 	return countTemplate
 }
 
-func (c *Count) Found(resp *response.Response) (bool, *string) {
+func (c *Count) Found(resp *response.Response) (bool, *response.Result) {
 	total := big.NewFloat(float64(resp.Total()))
 	match, desc := c.match(total)
 	if !match {
 		return match, nil
 	}
 
-	detail := fmt.Sprintf("total %d %s\n\n%s", resp.Total(), desc, resp.FlattenAggs())
-	return match, &detail
+	result := &response.Result{}
+	resp.FlatEach(func(arr []interface{}, count int) {
+		result.SetDetail(arr, count, nil)
+	})
+	abstract := fmt.Sprintf("total %d %s", resp.Total(), desc)
+	result.Abstract = abstract
+
+	return match, result
 }
 
-func (c *Count) ScopeString() string {
-	return string(c.Scope)
+func (c *Count) FoundOnAggs(resp *response.Response) (bool, *response.Result) {
+	var (
+		anyMatch bool
+		anyDesc  string
+	)
+
+	result := &response.Result{}
+
+	resp.FlatEach(func(arr []interface{}, count int) {
+		total := big.NewFloat(float64(count))
+		if match, desc := c.match(total); match {
+			anyMatch = match
+			anyDesc = desc
+			result.SetDetail(arr, count, nil)
+		}
+	})
+
+	if !anyMatch {
+		return false, nil
+	}
+
+	abstract := fmt.Sprintf("something %s", anyDesc)
+	result.Abstract = abstract
+
+	return anyMatch, result
 }

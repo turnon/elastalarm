@@ -23,7 +23,6 @@ type config struct {
 	Index        string                     `json:"index"`
 	ParadigmName string                     `json:"paradigm"`
 	Condition    json.RawMessage            `json:"condition"`
-	Detail       json.RawMessage            `json:"detail"`
 	Alarms       map[string]json.RawMessage `json:"alarms"`
 	notifiers    []notifiers.Notifier
 	paradigms.Paradigm
@@ -124,13 +123,6 @@ func (cfg *config) TimeField() string {
 		return "@timestamp"
 	}
 	return cfg.TimeF
-}
-
-func (cfg *config) DetailString() string {
-	if str := string(cfg.Detail); str != "" {
-		return str
-	}
-	return "{}"
 }
 
 func (cfg *config) makeTicker() error {

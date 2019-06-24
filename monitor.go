@@ -99,18 +99,30 @@ func (mon *monitor) _check() error {
 		return errors.WithStack(err)
 	}
 
-	found, detail := mon.Found(respObj)
-	if !found {
-		return nil
-	}
-
-	mon.notify(*detail)
+	mon.handleResp(respObj)
 
 	return nil
 }
 
-func (mon *monitor) notify(body string) {
-	msg := notifiers.Msg{Title: mon.Title, Body: body}
+func (mon *monitor) handleResp(respObj *response.Response) {
+	var (
+		found  bool
+		result *response.Result
+	)
+
+	if mon.OnAggs() {
+		found, result = mon.FoundOnAggs(respObj)
+	} else {
+		found, result = mon.Found(respObj)
+	}
+
+	if found {
+		mon.notify(result)
+	}
+}
+
+func (mon *monitor) notify(result *response.Result) {
+	msg := notifiers.Msg{mon.Title, result}
 
 	for _, notifier := range mon.notifiers {
 		if err := notifier.Send(&msg); err != nil {
@@ -127,13 +139,17 @@ func (mon *monitor) handleReqErr(err error) error {
 		return nil
 	}
 
+	result := &response.Result{}
+
 	if e, ok := err.(net.Error); ok && e.Timeout() && mon.timeoutRetried < mon.TimeoutRetry {
 		timeoutMsg := "retried (" + string(mon.timeoutRetried) + "/" + string(mon.TimeoutRetry) + ") " + err.Error()
-		mon.notify(timeoutMsg)
+		result.Abstract = timeoutMsg
+		mon.notify(result)
 		mon.timeoutRetried = mon.timeoutRetried + 1
 		return nil
 	}
 
-	mon.notify(err.Error())
+	result.Abstract = err.Error()
+	mon.notify(result)
 	return err
 }

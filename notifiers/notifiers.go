@@ -2,13 +2,17 @@ package notifiers
 
 import (
 	"encoding/json"
+	"fmt"
+
+	"github.com/turnon/elastalarm/response"
 )
 
 var (
 	Generators = map[string](func(cfg json.RawMessage) (Notifier, error)){
-		"stdout": newStdout,
-		"email":  newEmail,
-		"ding":   newDing,
+		"stdout":   newStdout,
+		"email":    newEmail,
+		"ding":     newDing,
+		"web_hook": newWebHook,
 	}
 )
 
@@ -17,9 +21,14 @@ type Notifier interface {
 }
 
 type Msg struct {
-	Title, Body string
+	Title string `json:"title"`
+	*response.Result
 }
 
-func (msg *Msg) join(seperate string) string {
-	return msg.Title + seperate + msg.Body
+func (msg *Msg) TextWithTitle() string {
+	return fmt.Sprintf("%s\n\n%s", msg.Title, msg.Text())
+}
+
+func (msg *Msg) JSON() ([]byte, error) {
+	return json.Marshal(msg)
 }

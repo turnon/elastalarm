@@ -5,30 +5,30 @@
     "index": "logstash-nginx-access-*",
     "paradigm": "percentage",
     "condition": {
-        "part": {
+        "partial_query": {
             "prefix": {
                 "retcode.keyword": "5"
             }
         },
-        "whole": {
+        "query": {
             "match_all": {}
         },
-        "match": {
-            "gt": 0.02
-        }
-    },
-    "detail": {
-        "requestPaths": {
-            "terms": {
-                "field": "retcode.keyword"
-            },
-            "aggs": {
-                "hosts": {
-                    "terms": {
-                        "field": "requestPath.keyword"
+        "aggs": {
+            "requestPaths": {
+                "terms": {
+                    "field": "retcode.keyword"
+                },
+                "aggs": {
+                    "hosts": {
+                        "terms": {
+                            "field": "requestPath.keyword"
+                        }
                     }
                 }
             }
+        },
+        "match": {
+            "gt": 0.02
         }
     },
     "alarms": {

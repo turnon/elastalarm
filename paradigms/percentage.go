@@ -9,10 +9,9 @@ import (
 )
 
 type Percentage struct {
-	Part   json.RawMessage `json:"part"`
-	Whole  json.RawMessage `json:"whole"`
-	Match  `json:"match"`
-	Detail json.RawMessage `json:"detail"`
+	EsDsl
+	PartialQuery json.RawMessage `json:"partial_query"`
+	Match        `json:"match"`
 }
 
 type percentAggs struct {
@@ -33,55 +32,120 @@ const percentageTemplate = `
 						}
 					}
 				},
-				{{ .Paradigm.WholeString }}
+				{{ .Paradigm.QueryString }}
 			]
 		}
 	},
 	"size": 0,
 	"aggs": {
 		"part": {
-			"filter": {{ .Paradigm.PartString }},
-			"aggs": {{ .DetailString }}
+			"filter": {{ .Paradigm.PartialQueryString }},
+			"aggs": {{ .Paradigm.AggsString }}
 		}
 	}
+}
+`
+
+const percentageOnAggsTemplate = `
+{
+	"query": {
+		"bool": {
+			"must": [
+				{
+					"range": {
+						"{{ .TimeField }}": {
+							"gt": "{{ .NowString }}-{{ .Interval }}"
+						}
+					}
+				},
+				{{ .Paradigm.QueryString }}
+			]
+		}
+	},
+	"size": 0,
+	"aggs": {{ .Paradigm.AggsString }}
+
 }
 `
 
 var hundred = big.NewFloat(100)
 
 func (p *Percentage) Template() string {
+	if p.OnAggs() {
+		return percentageOnAggsTemplate
+	}
 	return percentageTemplate
 }
 
-func (p *Percentage) Found(resp *response.Response) (bool, *string) {
+func (p *Percentage) Found(resp *response.Response) (bool, *response.Result) {
 	total := resp.Total()
 	if total == 0 {
 		return false, nil
 	}
-	whole := big.NewFloat(float64(total))
 
 	aggs := &percentAggs{}
 	json.Unmarshal(resp.Aggregations, aggs)
-	part := big.NewFloat(float64(aggs.Part.DocCount))
+	part := aggs.Part.DocCount
 
-	var quo, percent big.Float
-	quo.Quo(part, whole)
-	percent.Mul(&quo, hundred)
-	match, desc := p.match(&percent)
+	percent := calcPercent(part, total)
+	match, desc := p.match(percent)
 
 	if !match {
 		return match, nil
 	}
 
-	detail := fmt.Sprintf("%d / %d = %s%% %s\n\n%s",
-		aggs.Part.DocCount, total, percent.String(), desc, resp.FlattenAggs())
-	return match, &detail
+	result := &response.Result{}
+	resp.FlatEach(func(arr []interface{}, count int) {
+		result.SetDetail(arr, count, nil)
+	})
+	abstract := fmt.Sprintf("%d / %d = %s%% %s", part, total, percent.String(), desc)
+	result.Abstract = abstract
+
+	return match, result
 }
 
-func (p *Percentage) PartString() string {
-	return string(p.Part)
+func (p *Percentage) FoundOnAggs(resp *response.Response) (bool, *response.Result) {
+	total := resp.Total()
+	if total == 0 {
+		return false, nil
+	}
+
+	var (
+		anyMatch bool
+		anyDesc  string
+	)
+
+	result := &response.Result{}
+
+	resp.FlatEach(func(arr []interface{}, part int) {
+		percent := calcPercent(part, total)
+		if match, desc := p.match(percent); match {
+			anyMatch = match
+			anyDesc = desc
+			result.SetDetail(arr, part, percent)
+		}
+	})
+
+	if !anyMatch {
+		return false, nil
+	}
+
+	abstract := fmt.Sprintf("something %s", anyDesc)
+	result.Abstract = abstract
+	return anyMatch, result
 }
 
-func (p *Percentage) WholeString() string {
-	return string(p.Whole)
+func calcPercent(numerator, denominator int) *big.Float {
+	n := big.NewFloat(float64(numerator))
+	d := big.NewFloat(float64(denominator))
+
+	var quo, percent big.Float
+	quo.Quo(n, d)
+	percent.Mul(&quo, hundred)
+
+	return &percent
+}
+
+func (p *Percentage) PartialQueryString() string {
+	return string(p.PartialQuery)
 }

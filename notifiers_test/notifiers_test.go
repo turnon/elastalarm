@@ -6,13 +6,14 @@ import (
 	"time"
 
 	"github.com/turnon/elastalarm/notifiers"
+	"github.com/turnon/elastalarm/response"
 )
 
 var (
 	t     = time.Now().String()
 	title = "title:" + t
-	body  = "body:" + t
-	msg   = notifiers.Msg{Title: title, Body: body}
+	resp  = &response.Result{Abstract: "body:" + t}
+	msg   = notifiers.Msg{title, resp}
 )
 
 func dingConfig() []byte {
