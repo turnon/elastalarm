@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -40,10 +41,11 @@ func newMonitor(host string, cfg *config) *monitor {
 	index := url.PathEscape(cfg.Index)
 	url := strings.Join([]string{host, index, "_search"}, "/")
 	return &monitor{
-		config:     cfg,
-		url:        url,
-		httpClient: &http.Client{Timeout: timeOut},
-		done:       make(chan bool),
+		config:         cfg,
+		url:            url,
+		httpClient:     &http.Client{Timeout: timeOut},
+		done:           make(chan bool),
+		timeoutRetried: 0,
 	}
 }
 
@@ -80,8 +82,8 @@ func (mon *monitor) _check() error {
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := mon.httpClient.Do(req)
-	if mon.handleReqErr(err) != nil {
-		return errors.WithStack(err)
+	if errHandler := mon.handleReqErr(err); errHandler != nil {
+		return errHandler()
 	}
 	defer resp.Body.Close()
 
@@ -131,25 +133,52 @@ func (mon *monitor) notify(result *response.Result) {
 	}
 }
 
-func (mon *monitor) handleReqErr(err error) error {
+func (mon *monitor) handleReqErr(err error) func() error {
 	if err == nil {
 		if mon.timeoutRetried > 0 {
-			mon.timeoutRetried = mon.timeoutRetried - 1
+			if tickerErr := mon.backToDefaultTicker(); tickerErr != nil {
+				return func() error {
+					return errors.WithStack(tickerErr)
+				}
+			}
 		}
 		return nil
 	}
 
-	result := &response.Result{}
+	if e, ok := err.(net.Error); ok && e.Timeout() {
+		mon.notify(&response.Result{
+			Abstract: "retried (" + strconv.Itoa(mon.timeoutRetried) + "/" + strconv.Itoa(mon.TimeoutRetry) + ") " + err.Error(),
+		})
 
-	if e, ok := err.(net.Error); ok && e.Timeout() && mon.timeoutRetried < mon.TimeoutRetry {
-		timeoutMsg := "retried (" + string(mon.timeoutRetried) + "/" + string(mon.TimeoutRetry) + ") " + err.Error()
-		result.Abstract = timeoutMsg
-		mon.notify(result)
-		mon.timeoutRetried = mon.timeoutRetried + 1
-		return nil
+		if mon.timeoutRetried >= mon.TimeoutRetry {
+			return func() error {
+				return errors.WithStack(err)
+			}
+		}
+
+		return func() error {
+			if err = mon.makeRetryTicker(); err != nil {
+				return errors.WithStack(err)
+			}
+			return nil
+		}
 	}
 
-	result.Abstract = err.Error()
-	mon.notify(result)
-	return err
+	return func() error {
+		mon.notify(&response.Result{Abstract: err.Error()})
+		return errors.WithStack(err)
+	}
+}
+
+func (mon *monitor) makeRetryTicker() error {
+	mon.stopTicker()
+	interval := strconv.Itoa(1<<uint(mon.timeoutRetried)) + "m"
+	mon.timeoutRetried = mon.timeoutRetried + 1
+	return mon.makeTicker(interval)
+}
+
+func (mon *monitor) backToDefaultTicker() error {
+	mon.stopTicker()
+	mon.timeoutRetried = mon.timeoutRetried - 1
+	return mon.makeDefaultTicker()
 }

@@ -9,12 +9,11 @@
 * paradigm： 统计方式，可填`count`、`percentage`、`spike`之一
 * condition： 因paradigm而异，见“各paradigm专用键及算法”
 * condition.match： 值格式如`{"gt": 0, "lt": 1, "not": false, "aggs": false}`，此例表示当统计数字在0到1范围内时，发送消息；`gt`和`lt`可以相交或不相交；`not`可选，默认为`fales`，填`true`时，取`gt`和`lt`所指的范围之外。`aggs`可选，默认为`false`，表示以`condition.query`的统计数来判断是否符合范围，填`true`则会在`condition.aggs`的结果集里有符合范围的组时，才发送消息
-* detail： 用于将查询所得汇总，格式同es聚合DSL
 
 ## 通知
 
 * title： 消息标题
-* alarms： 消息发送方式，键可选`stdout`、`email`、`ding`之中的一个或多个
+* alarms： 消息发送方式，键可选`stdout`、`email`、`ding`、`web_hook`之中的一个或多个
 * alarms.stdout： 消息发送到标准输出，值为空对象
 * alarms.email： 消息以邮件方式发送，值格式为`{"to": []}`，数组可含多个收件人
 * alarms.ding： 消息以钉钉方式发送，值格式为`{"chats": [], "users": [], "robots": []}`，数组分别可含多个钉钉群ID、用户ID、机器人access_token

@@ -58,7 +58,7 @@ func loadConfig(path string) *config {
 		failToLoad(path, err)
 	}
 
-	if err := cfg.makeTicker(); err != nil {
+	if err := cfg.makeDefaultTicker(); err != nil {
 		failToLoad(path, err)
 	}
 
@@ -125,8 +125,12 @@ func (cfg *config) TimeField() string {
 	return cfg.TimeF
 }
 
-func (cfg *config) makeTicker() error {
-	duration, err := time.ParseDuration(cfg.Interval)
+func (cfg *config) makeDefaultTicker() error {
+	return cfg.makeTicker(cfg.Interval)
+}
+
+func (cfg *config) makeTicker(interval string) error {
+	duration, err := time.ParseDuration(interval)
 	if err != nil {
 		return err
 	}
