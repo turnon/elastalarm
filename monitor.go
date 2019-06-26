@@ -23,10 +23,17 @@ type monitor struct {
 	*config
 }
 
-const timeOut = 3 * time.Second
+const (
+	timeOut  = 3 * time.Second
+	delayRun = 5 * time.Second
+)
 
 func initMonitors(host string, files []string) {
-	for _, file := range files {
+	for i, file := range files {
+		if i != 0 {
+			time.Sleep(delayRun)
+		}
+
 		cfg := loadConfig(file)
 		if cfg.Skip {
 			continue
