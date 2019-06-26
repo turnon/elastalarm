@@ -153,10 +153,10 @@ func (s *Spike) FoundOnAggs(resp *response.Response) (bool, *response.Result) {
 	// calculate 0/past if past remain
 	if s.Ref == 0 {
 		recentNotFound := big.NewFloat(float64(0))
-		if match, desc := s.match(recentNotFound); match {
+		if match, desc := s.match(recentNotFound); match && len(past) > 0 {
 			anyMatch = match
 			anyDesc = desc
-			for key, _ := range past {
+			for key := range past {
 				keys := pastRawKeys[key]
 				result.SetDetail(keys, 0, recentNotFound)
 			}
