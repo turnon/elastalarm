@@ -77,6 +77,10 @@ func (p *Percentage) Template() string {
 	return percentageTemplate
 }
 
+func (p *Percentage) SupportStep() bool {
+	return false
+}
+
 func (p *Percentage) Found(resp *response.Response) (bool, *response.Result) {
 	total := resp.Total()
 	if total == 0 {

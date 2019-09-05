@@ -83,6 +83,10 @@ func (s *Spike) pastCount(aggs *spikeAggs) int {
 	return 0
 }
 
+func (s *Spike) SupportStep() bool {
+	return false
+}
+
 func (s *Spike) Found(resp *response.Response) (bool, *response.Result) {
 	aggs := &spikeAggs{}
 	json.Unmarshal(resp.Aggregations, aggs)

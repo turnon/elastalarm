@@ -9,6 +9,7 @@ type Paradigm interface {
 	Found(resp *response.Response) (bool, *response.Result)
 	FoundOnAggs(resp *response.Response) (bool, *response.Result)
 	OnAggs() bool
+	SupportStep() bool
 }
 
 func Names(name string) Paradigm {

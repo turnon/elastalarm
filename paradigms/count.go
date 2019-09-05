@@ -37,6 +37,10 @@ func (c *Count) Template() string {
 	return countTemplate
 }
 
+func (c *Count) SupportStep() bool {
+	return true
+}
+
 func (c *Count) Found(resp *response.Response) (bool, *response.Result) {
 	total := big.NewFloat(float64(resp.Total()))
 	match, desc := c.match(total)

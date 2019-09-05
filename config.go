@@ -19,6 +19,7 @@ type config struct {
 	Now          string                     `json:"now"`
 	TimeF        string                     `json:"time_field"`
 	Interval     string                     `json:"interval"`
+	Step         string                     `json:"step"`
 	TimeoutRetry int                        `json:"timeout_retry"`
 	Index        string                     `json:"index"`
 	ParadigmName string                     `json:"paradigm"`
@@ -126,7 +127,13 @@ func (cfg *config) TimeField() string {
 }
 
 func (cfg *config) makeDefaultTicker() error {
-	return cfg.makeTicker(cfg.Interval)
+	var interval string
+	if cfg.SupportStep() && cfg.Step != "" {
+		interval = cfg.Step
+	} else {
+		interval = cfg.Interval
+	}
+	return cfg.makeTicker(interval)
 }
 
 func (cfg *config) makeTicker(interval string) error {

@@ -4,7 +4,8 @@
 
 * now： 可选，用于测试时固定时间范围为now-interval
 * time_field： 可选，指定监控周期依据文档的哪个时间字段，默认是`@timestamp`
-* interval： 监控的周期
+* interval： 监控的周期（窗口）
+* step：窗口滑动的步长（目前只对`count`统计有用，默认按`interval`滑动）
 * index： 符合ES API规范的索引名，可含多个索引、通配符、日期计算表达式
 * paradigm： 统计方式，可填`count`、`percentage`、`spike`之一
 * condition： 因paradigm而异，见“各paradigm专用键及算法”
