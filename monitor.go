@@ -46,7 +46,7 @@ func initMonitors(host string, files []string) {
 
 func newMonitor(host string, cfg *config) *monitor {
 	index := url.PathEscape(cfg.Index)
-	url := strings.Join([]string{host, index, "_search"}, "/")
+	url := strings.Join([]string{host, index, "_search?rest_total_hits_as_int=true"}, "/")
 	return &monitor{
 		config:         cfg,
 		url:            url,
